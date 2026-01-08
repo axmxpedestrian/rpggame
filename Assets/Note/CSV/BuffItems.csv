@@ -1,0 +1,19 @@
+# 增益类消耗品数据表
+# BuffEffects格式: BuffType:Value:IsPercentage|...
+# BuffType: Attack/Defense/MagicAttack/MagicDefense/Speed/CriticalChance/CriticalDamage/Accuracy/Evasion/AllStats
+ItemId,ItemName,Description,IconPath,Rarity,Flags,BuyPrice,SellPrice,MaxStackSize,BuffEffects,Duration,IsPermanent,ATBCost,TargetType,Cooldown
+5001,力量药剂,暂时提升攻击力,Icons/Consumables/str_potion,Common,Stackable|UsableInCombat|CanCarryToBattle|Sellable,80,40,15,Attack:10:false,60,false,50,SingleAlly,0
+5002,防御药剂,暂时提升防御力,Icons/Consumables/def_potion,Common,Stackable|UsableInCombat|CanCarryToBattle|Sellable,80,40,15,Defense:10:false,60,false,50,SingleAlly,0
+5003,敏捷药剂,暂时提升速度,Icons/Consumables/agi_potion,Common,Stackable|UsableInCombat|CanCarryToBattle|Sellable,100,50,15,Speed:0.15:true,60,false,50,SingleAlly,0
+5004,魔力药剂,暂时提升魔法攻击,Icons/Consumables/matk_potion,Common,Stackable|UsableInCombat|CanCarryToBattle|Sellable,100,50,15,MagicAttack:10:false,60,false,50,SingleAlly,0
+5005,精准药剂,暂时提升命中率,Icons/Consumables/acc_potion,Uncommon,Stackable|UsableInCombat|CanCarryToBattle|Sellable,120,60,10,Accuracy:0.1:true,60,false,50,SingleAlly,0
+5006,闪避药剂,暂时提升闪避率,Icons/Consumables/eva_potion,Uncommon,Stackable|UsableInCombat|CanCarryToBattle|Sellable,120,60,10,Evasion:0.1:true,60,false,50,SingleAlly,0
+5007,暴击药剂,暂时提升暴击率,Icons/Consumables/crit_potion,Uncommon,Stackable|UsableInCombat|CanCarryToBattle|Sellable,150,75,10,CriticalChance:0.1:true,60,false,50,SingleAlly,0
+5008,强力力量药剂,大幅提升攻击力,Icons/Consumables/str_potion_l,Rare,Stackable|UsableInCombat|CanCarryToBattle|Sellable,250,125,10,Attack:25:false,90,false,50,SingleAlly,0
+5009,强力防御药剂,大幅提升防御力,Icons/Consumables/def_potion_l,Rare,Stackable|UsableInCombat|CanCarryToBattle|Sellable,250,125,10,Defense:25:false,90,false,50,SingleAlly,0
+5010,狂暴药水,大幅提升攻击但降低防御,Icons/Consumables/rage_potion,Rare,Stackable|UsableInCombat|CanCarryToBattle|Sellable,200,100,8,Attack:0.4:true|Defense:-0.25:true,45,false,50,Self,0
+5011,铁壁药水,大幅提升防御但降低攻击,Icons/Consumables/iron_wall_potion,Rare,Stackable|UsableInCombat|CanCarryToBattle|Sellable,200,100,8,Defense:0.4:true|Attack:-0.25:true,45,false,50,Self,0
+5012,全能药剂,提升所有属性,Icons/Consumables/all_potion,Epic,Stackable|UsableInCombat|CanCarryToBattle|Sellable,500,250,5,AllStats:0.1:true,90,false,60,SingleAlly,0
+5013,战神之力,战斗期间永久提升攻击,Icons/Consumables/wargod_power,Epic,Stackable|UsableInCombat|CanCarryToBattle|Sellable,800,400,3,Attack:0.25:true,0,true,80,Self,0
+5014,护盾卷轴,为目标提供护盾,Icons/Consumables/shield_scroll,Rare,Stackable|UsableInCombat|CanCarryToBattle|Sellable,300,150,10,Defense:20:false,120,false,60,SingleAlly,0
+5015,群体强化卷轴,提升全队攻击力,Icons/Consumables/group_buff_scroll,Rare,Stackable|UsableInCombat|CanCarryToBattle|Sellable,400,200,5,Attack:0.15:true,60,false,80,AllAllies,0

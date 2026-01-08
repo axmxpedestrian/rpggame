@@ -112,4 +112,27 @@ namespace ItemSystem.Core
         Socketable = 1 << 8,        // 可镶嵌配件
         Tradeable = 1 << 9          // 可交易
     }
+
+    /// <summary>
+    /// 前缀类别 - 用于限制武器可用的修饰语
+    /// </summary>
+    public enum PrefixCategory
+    {
+        Melee,          // 近战
+        Ranged,         // 远程
+        Magic,          // 魔法
+        Universal       // 通用
+    }
+
+    /// <summary>
+    /// 前缀品质等级
+    /// </summary>
+    public enum PrefixTier
+    {
+        Negative,   // 负面前缀
+        Neutral,    // 中性
+        Good,       // 良好
+        Great,      // 优秀
+        Best        // 最佳
+    }
 }

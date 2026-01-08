@@ -1,0 +1,16 @@
+# 护甲数据表
+# ArmorSlot: Head/Body/Legs
+# Resistances顺序: None|Fire|Ice|Lightning|Poison|Holy|Dark
+ItemId,ItemName,Description,IconPath,Rarity,Flags,BuyPrice,SellPrice,LevelRequirement,ArmorSlot,PhysicalDefense,MagicDefense,Resistances,MaxDurability
+2001,布帽,简单的布制帽子,Icons/Armors/cloth_cap,Common,Sellable|HasDurability,30,15,1,Head,2,1,0|0|0|0|0|0|0,50
+2002,铁头盔,坚固的铁制头盔,Icons/Armors/iron_helmet,Common,Socketable|Sellable|HasDurability,100,50,3,Head,6,2,0|0|0|0|0|0|0,100
+2003,钢盔,精钢打造的头盔,Icons/Armors/steel_helmet,Uncommon,Socketable|Sellable|HasDurability,250,125,8,Head,10,4,0|0|0|0|0|0|0,120
+2004,皮甲,轻便的皮革护甲,Icons/Armors/leather_armor,Common,Sellable|HasDurability,80,40,1,Body,5,2,0|0|0|0|0|0|0,80
+2005,铁甲,标准的铁制胸甲,Icons/Armors/iron_armor,Common,Socketable|Sellable|HasDurability,200,100,5,Body,12,4,0|0|0|0|0|0|0,120
+2006,钢甲,精钢锻造的胸甲,Icons/Armors/steel_armor,Uncommon,Socketable|Sellable|HasDurability,500,250,10,Body,20,8,0|0|0|0|0|0|0,150
+2007,火焰胸甲,抵御火焰的护甲,Icons/Armors/fire_armor,Rare,Socketable|Sellable|HasDurability,1000,500,15,Body,18,12,0|0.3|0|0|0|0|0,140
+2008,寒冰护甲,抵御冰霜的护甲,Icons/Armors/ice_armor,Rare,Socketable|Sellable|HasDurability,1000,500,15,Body,18,12,0|0|0.3|0|0|0|0,140
+2009,皮靴,轻便的皮革靴子,Icons/Armors/leather_boots,Common,Sellable|HasDurability,50,25,1,Legs,3,1,0|0|0|0|0|0|0,60
+2010,铁护腿,铁制的护腿,Icons/Armors/iron_greaves,Common,Socketable|Sellable|HasDurability,120,60,5,Legs,8,3,0|0|0|0|0|0|0,100
+2011,圣骑士全甲,神圣骑士的护甲套装,Icons/Armors/paladin_armor,Epic,Socketable|Sellable|HasDurability,3000,1500,25,Body,35,25,0|0.1|0.1|0.1|0.2|0.3|0.2,200
+2012,暗影斗篷,隐藏在暗影中的斗篷,Icons/Armors/shadow_cloak,Rare,Socketable|Sellable|HasDurability,800,400,18,Body,8,18,0|0|0|0|0|0|0.25,100

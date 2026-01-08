@@ -1,0 +1,19 @@
+# 武器数据表
+# Rarity: Common/Uncommon/Rare/Epic/Legendary
+# WeaponCategory: Blunt/Sharp/Bow/Explosive/Gun/Magic
+# Element: None/Fire/Ice/Lightning/Poison/Holy/Dark
+# DamageCategory: Physical/Magic/True
+# RangeType: Melee/Ranged/All/Adjacent/Self
+ItemId,ItemName,Description,IconPath,Rarity,Flags,BuyPrice,SellPrice,LevelRequirement,WeaponCategory,BaseDamage,CriticalChance,CriticalMultiplier,Element,DamageCategory,MaxDurability,RangeType,TargetPositions,SkillIds
+1001,木棍,新手用的木棍,Icons/Weapons/wooden_stick,Common,Sellable|HasDurability,20,10,1,Blunt,8,0.03,1.3,None,Physical,50,Melee,0|1,
+1002,铁剑,标准的铁制长剑,Icons/Weapons/iron_sword,Common,Reforgeable|Sellable|HasDurability,100,50,1,Sharp,15,0.05,1.5,None,Physical,100,Melee,0|1,
+1003,钢剑,锋利的钢制长剑,Icons/Weapons/steel_sword,Uncommon,Reforgeable|Socketable|Sellable|HasDurability,300,150,5,Sharp,22,0.06,1.5,None,Physical,120,Melee,0|1,
+1004,猎弓,轻便的猎弓,Icons/Weapons/hunting_bow,Common,Reforgeable|Sellable|HasDurability,120,60,3,Bow,12,0.06,1.6,None,Physical,80,Ranged,2|3|4,
+1005,铁弩,威力强大的铁弩,Icons/Weapons/iron_crossbow,Uncommon,Reforgeable|Socketable|Sellable|HasDurability,400,200,8,Bow,28,0.04,1.8,None,Physical,100,Ranged,2|3|4,
+1006,火焰法杖,蕴含火焰之力的法杖,Icons/Weapons/fire_staff,Rare,Reforgeable|Socketable|Sellable|HasDurability,800,400,10,Magic,25,0.08,1.8,Fire,Magic,80,All,0|1|2|3|4,101|102
+1007,冰霜权杖,散发寒气的权杖,Icons/Weapons/ice_scepter,Rare,Reforgeable|Socketable|Sellable|HasDurability,850,425,12,Magic,23,0.1,1.7,Ice,Magic,80,All,0|1|2|3|4,103|104
+1008,雷神之锤,传说中的雷神武器,Icons/Weapons/thunder_hammer,Epic,Reforgeable|Socketable|Sellable|HasDurability,2000,1000,20,Blunt,45,0.12,2.0,Lightning,Physical,150,Melee,0|1,201|202
+1009,黑暗匕首,隐藏在暗影中的利刃,Icons/Weapons/dark_dagger,Rare,Reforgeable|Socketable|Sellable|HasDurability,600,300,15,Sharp,18,0.15,2.2,Dark,Physical,70,Adjacent,0|1|2,
+1010,圣光之剑,驱散黑暗的神圣武器,Icons/Weapons/holy_sword,Legendary,Reforgeable|Socketable|Sellable|HasDurability,5000,2500,30,Sharp,55,0.1,2.0,Holy,Physical,200,Melee,0|1,301|302|303
+1011,炸药包,可投掷的爆炸物,Icons/Weapons/dynamite,Uncommon,Stackable|Sellable,50,25,5,Explosive,40,0,1.0,Fire,Physical,0,Ranged,2|3|4,
+1012,火枪,简易的火器,Icons/Weapons/musket,Rare,Reforgeable|Sellable|HasDurability,1000,500,15,Gun,35,0.08,1.8,None,Physical,60,Ranged,2|3|4,

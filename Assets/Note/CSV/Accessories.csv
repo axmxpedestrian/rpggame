@@ -1,0 +1,26 @@
+# 饰品数据表
+# StatModifiers格式: StatType:ModifierType:Value|...
+# SpecialEffects格式: EffectType:Value:Element|...
+ItemId,ItemName,Description,IconPath,Rarity,Flags,BuyPrice,SellPrice,LevelRequirement,StatModifiers,SpecialEffects,PassiveSkillId
+3001,力量戒指,增加力量的戒指,Icons/Accessories/str_ring,Common,Sellable,100,50,1,Strength:Flat:3,,
+3002,体质戒指,增加体质的戒指,Icons/Accessories/con_ring,Common,Sellable,100,50,1,Constitution:Flat:3,,
+3003,智慧戒指,增加智慧的戒指,Icons/Accessories/wis_ring,Common,Sellable,100,50,1,Wisdom:Flat:3,,
+3004,敏捷戒指,增加反应的戒指,Icons/Accessories/agi_ring,Common,Sellable,100,50,1,Reaction:Flat:3,,
+3005,幸运戒指,增加幸运的戒指,Icons/Accessories/luck_ring,Uncommon,Sellable,200,100,5,Luck:Flat:5,,
+3006,力量护符,大幅增加力量,Icons/Accessories/str_amulet,Uncommon,Sellable,300,150,8,Strength:Flat:8,,
+3007,生命护符,增加最大生命值,Icons/Accessories/hp_amulet,Uncommon,Sellable,350,175,8,MaxHealth:Flat:50,,
+3008,攻击之戒,增加物理攻击力,Icons/Accessories/atk_ring,Uncommon,Sellable,400,200,10,PhysicalAttack:Flat:10,,
+3009,魔力之戒,增加魔法攻击力,Icons/Accessories/matk_ring,Uncommon,Sellable,400,200,10,MagicAttack:Flat:10,,
+3010,暴击护符,提高暴击率,Icons/Accessories/crit_amulet,Rare,Sellable,600,300,12,CriticalRate:PercentAdd:0.08,CriticalChanceBonus:0.05:None,
+3011,迅捷之靴,提高速度,Icons/Accessories/speed_boots,Rare,Sellable,500,250,10,Speed:Flat:10,,
+3012,火焰之心,增强火焰伤害,Icons/Accessories/fire_heart,Rare,Sellable,800,400,15,MagicAttack:Flat:8,ElementalDamageBonus:0.2:Fire,
+3013,冰霜之心,增强冰霜伤害,Icons/Accessories/ice_heart,Rare,Sellable,800,400,15,MagicAttack:Flat:8,ElementalDamageBonus:0.2:Ice,
+3014,雷霆之心,增强雷电伤害,Icons/Accessories/thunder_heart,Rare,Sellable,800,400,15,MagicAttack:Flat:8,ElementalDamageBonus:0.2:Lightning,
+3015,战士徽章,增加攻击和防御,Icons/Accessories/warrior_badge,Rare,Sellable,1000,500,15,PhysicalAttack:Flat:12|PhysicalDefense:Flat:8,,
+3016,法师徽章,增加魔攻和魔防,Icons/Accessories/mage_badge,Rare,Sellable,1000,500,15,MagicAttack:Flat:12|MagicDefense:Flat:8,,
+3017,全能护符,增加所有属性,Icons/Accessories/all_stat_amulet,Epic,Sellable,2000,1000,20,Strength:Flat:5|Constitution:Flat:5|Perception:Flat:5|Reaction:Flat:5|Wisdom:Flat:5|Luck:Flat:5,,
+3018,暴击之王,大幅提升暴击属性,Icons/Accessories/crit_king,Epic,Sellable,2500,1250,22,CriticalRate:PercentAdd:0.15,CriticalChanceBonus:0.1:None|CriticalDamageBonus:0.3:None,
+3019,技能回复戒指,每回合额外恢复技能点,Icons/Accessories/sp_regen_ring,Rare,Sellable,1200,600,18,,SkillPointRecovery:1:None,301
+3020,镇定项链,减少压力积累,Icons/Accessories/calm_necklace,Uncommon,Sellable,500,250,10,,StressReduction:0.2:None,
+3021,活力腰带,减少疲劳积累,Icons/Accessories/vigor_belt,Uncommon,Sellable,500,250,10,,FatigueReduction:0.2:None,
+3022,勇者指环,传说中勇者的戒指,Icons/Accessories/hero_ring,Legendary,Sellable,10000,5000,30,Strength:Flat:15|PhysicalAttack:Flat:20|CriticalRate:PercentAdd:0.1,DamageBonus:0.15:None,501

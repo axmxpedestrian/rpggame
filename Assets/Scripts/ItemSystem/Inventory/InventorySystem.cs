@@ -3,336 +3,457 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace ItemSystem.Crafting
+namespace ItemSystem.Inventory
 {
     using Core;
-
+    
     /// <summary>
-    /// 合成配方
+    /// 库存接口
     /// </summary>
-    [CreateAssetMenu(fileName = "NewRecipe", menuName = "ItemSystem/Recipe")]
-    public class Recipe : ScriptableObject
+    public interface IInventory
     {
-        [Header("配方信息")]
-        [SerializeField] private int recipeId;
-        [SerializeField] private string recipeName;
-
-        [Header("输入材料")]
-        [SerializeField] private RecipeIngredient[] ingredients;
-
-        [Header("输出物品")]
-        [SerializeField] private int outputItemId;
-        [SerializeField] private int outputCount = 1;
-
-        [Header("合成条件")]
-        [SerializeField] private CraftingStation requiredStation;
-        [SerializeField] private int requiredPlayerLevel;
-        [SerializeField] private string[] requiredSkills;  // 需要的专业技能
-        [SerializeField] private int requiredSkillLevel;
-
-        [Header("合成时间")]
-        [SerializeField] private float craftingTime = 0f;  // 0表示即时
-
-        // 属性访问
-        public int RecipeId => recipeId;
-        public string RecipeName => recipeName;
-        public RecipeIngredient[] Ingredients => ingredients;
-        public int OutputItemId => outputItemId;
-        public int OutputCount => outputCount;
-        public CraftingStation RequiredStation => requiredStation;
-        public float CraftingTime => craftingTime;
-
-        /// <summary>
-        /// 检查是否可以合成
-        /// </summary>
-        public bool CanCraft(IInventory inventory, CraftingContext context)
-        {
-            // 检查工作台
-            if (requiredStation != CraftingStation.None &&
-                context.CurrentStation != requiredStation)
-                return false;
-
-            // 检查等级要求
-            if (context.PlayerLevel < requiredPlayerLevel)
-                return false;
-
-            // 检查技能要求
-            if (requiredSkills != null)
-            {
-                foreach (var skill in requiredSkills)
-                {
-                    if (context.GetSkillLevel(skill) < requiredSkillLevel)
-                        return false;
-                }
-            }
-
-            // 检查材料
-            foreach (var ingredient in ingredients)
-            {
-                if (!inventory.HasItem(ingredient.ItemId, ingredient.Count))
-                    return false;
-            }
-
-            return true;
-        }
-
-        /// <summary>
-        /// 获取缺失的材料列表
-        /// </summary>
-        public List<RecipeIngredient> GetMissingIngredients(IInventory inventory)
-        {
-            var missing = new List<RecipeIngredient>();
-
-            foreach (var ingredient in ingredients)
-            {
-                int have = inventory.GetItemCount(ingredient.ItemId);
-                if (have < ingredient.Count)
-                {
-                    missing.Add(new RecipeIngredient
-                    {
-                        ItemId = ingredient.ItemId,
-                        Count = ingredient.Count - have
-                    });
-                }
-            }
-
-            return missing;
-        }
+        int Capacity { get; }
+        int UsedSlots { get; }
+        
+        bool AddItem(ItemInstance item);
+        bool RemoveItem(int itemId, int count = 1);
+        bool HasItem(int itemId, int count = 1);
+        int GetItemCount(int itemId);
+        ItemInstance GetItem(int itemId);
+        List<ItemInstance> GetAllItems();
+        void Clear();
     }
-
+    
     /// <summary>
-    /// 配方材料
+    /// 主库存 - 存储所有物品
     /// </summary>
     [Serializable]
-    public struct RecipeIngredient
+    public class MainInventory : IInventory
     {
-        public int ItemId;
-        public int Count;
-
-        // 运行时缓存
-        [NonSerialized] private Item _template;
-        public Item Template
+        [SerializeField] private int capacity = 100;
+        [SerializeField] private List<ItemInstance> items = new();
+        
+        public int Capacity => capacity;
+        public int UsedSlots => items.Count;
+        
+        public event Action<ItemInstance> OnItemAdded;
+        public event Action<ItemInstance, int> OnItemRemoved;
+        public event Action OnInventoryChanged;
+        
+        public bool AddItem(ItemInstance item)
         {
-            get
+            if (item == null) return false;
+            
+            // 尝试堆叠
+            if (item.Template.IsStackable)
             {
-                if (_template == null)
-                    _template = ItemDatabase.Instance.GetItem(ItemId);
-                return _template;
-            }
-        }
-    }
-
-    /// <summary>
-    /// 工作台类型
-    /// </summary>
-    public enum CraftingStation
-    {
-        None,           // 无需工作台
-        Workbench,      // 工作台
-        Anvil,          // 铁砧
-        MythrilAnvil,   // 秘银砧
-        Furnace,        // 熔炉
-        AlchemyTable,   // 炼金台
-        Loom,           // 织布机
-        Sawmill,        // 锯木厂
-        CookingPot,     // 烹饪锅
-        TinkerTable     // 工匠台
-    }
-
-    /// <summary>
-    /// 合成上下文
-    /// </summary>
-    public class CraftingContext
-    {
-        public CraftingStation CurrentStation;
-        public int PlayerLevel;
-        public Dictionary<string, int> SkillLevels;
-
-        public int GetSkillLevel(string skillName)
-        {
-            return SkillLevels?.TryGetValue(skillName, out int level) == true ? level : 0;
-        }
-    }
-
-    /// <summary>
-    /// 配方数据库
-    /// </summary>
-    public class RecipeDatabase : ScriptableObject
-    {
-        private static RecipeDatabase _instance;
-        public static RecipeDatabase Instance
-        {
-            get
-            {
-                if (_instance == null)
-                    _instance = Resources.Load<RecipeDatabase>("Databases/RecipeDatabase");
-                return _instance;
-            }
-        }
-
-        [SerializeField] private Recipe[] allRecipes;
-
-        private Dictionary<int, Recipe> _recipeLookup;
-        private Dictionary<int, List<Recipe>> _recipesByOutput;
-        private Dictionary<int, List<Recipe>> _recipesByIngredient;
-
-        private void OnEnable()
-        {
-            BuildLookups();
-        }
-
-        private void BuildLookups()
-        {
-            _recipeLookup = new Dictionary<int, Recipe>();
-            _recipesByOutput = new Dictionary<int, List<Recipe>>();
-            _recipesByIngredient = new Dictionary<int, List<Recipe>>();
-
-            foreach (var recipe in allRecipes)
-            {
-                _recipeLookup[recipe.RecipeId] = recipe;
-
-                // 按输出物品索引
-                if (!_recipesByOutput.ContainsKey(recipe.OutputItemId))
-                    _recipesByOutput[recipe.OutputItemId] = new List<Recipe>();
-                _recipesByOutput[recipe.OutputItemId].Add(recipe);
-
-                // 按材料索引
-                foreach (var ingredient in recipe.Ingredients)
+                var existing = items.FirstOrDefault(i => i.CanStackWith(item));
+                if (existing != null)
                 {
-                    if (!_recipesByIngredient.ContainsKey(ingredient.ItemId))
-                        _recipesByIngredient[ingredient.ItemId] = new List<Recipe>();
-                    _recipesByIngredient[ingredient.ItemId].Add(recipe);
+                    existing.StackCount += item.StackCount;
+                    OnInventoryChanged?.Invoke();
+                    return true;
                 }
             }
+            
+            // 新增槽位
+            if (UsedSlots >= capacity)
+                return false;
+            
+            items.Add(item);
+            OnItemAdded?.Invoke(item);
+            OnInventoryChanged?.Invoke();
+            return true;
         }
-
-        public Recipe GetRecipe(int recipeId)
+        
+        public bool RemoveItem(int itemId, int count = 1)
         {
-            if (_recipeLookup == null) BuildLookups();
-            return _recipeLookup.TryGetValue(recipeId, out var recipe) ? recipe : null;
+            var item = items.FirstOrDefault(i => i.ItemId == itemId);
+            if (item == null) return false;
+            
+            if (item.StackCount <= count)
+            {
+                items.Remove(item);
+            }
+            else
+            {
+                item.StackCount -= count;
+            }
+            
+            OnItemRemoved?.Invoke(item, count);
+            OnInventoryChanged?.Invoke();
+            return true;
         }
-
+        
+        public bool HasItem(int itemId, int count = 1)
+        {
+            return GetItemCount(itemId) >= count;
+        }
+        
+        public int GetItemCount(int itemId)
+        {
+            return items
+                .Where(i => i.ItemId == itemId)
+                .Sum(i => i.StackCount);
+        }
+        
+        public ItemInstance GetItem(int itemId)
+        {
+            return items.FirstOrDefault(i => i.ItemId == itemId);
+        }
+        
+        public List<ItemInstance> GetAllItems() => new(items);
+        
+        public void Clear()
+        {
+            items.Clear();
+            OnInventoryChanged?.Invoke();
+        }
+        
         /// <summary>
-        /// 获取可制作某物品的所有配方
+        /// 按类型筛选物品
         /// </summary>
-        public List<Recipe> GetRecipesForItem(int outputItemId)
+        public List<ItemInstance> GetItemsByType(ItemType type)
         {
-            if (_recipesByOutput == null) BuildLookups();
-            return _recipesByOutput.TryGetValue(outputItemId, out var recipes)
-                ? recipes : new List<Recipe>();
+            return items.Where(i => i.Template.ItemType == type).ToList();
         }
-
+        
         /// <summary>
-        /// 获取使用某材料的所有配方
+        /// 获取可携带进入战斗的物品
         /// </summary>
-        public List<Recipe> GetRecipesUsingMaterial(int materialId)
+        public List<ItemInstance> GetBattleCarriableItems()
         {
-            if (_recipesByIngredient == null) BuildLookups();
-            return _recipesByIngredient.TryGetValue(materialId, out var recipes)
-                ? recipes : new List<Recipe>();
-        }
-
-        /// <summary>
-        /// 获取当前工作台可用的所有配方
-        /// </summary>
-        public List<Recipe> GetAvailableRecipes(CraftingStation station, IInventory inventory)
-        {
-            if (_recipeLookup == null) BuildLookups();
-
-            return allRecipes
-                .Where(r => r.RequiredStation == station || r.RequiredStation == CraftingStation.None)
-                .Where(r => r.Ingredients.Any(i => inventory.HasItem(i.ItemId, 1)))
-                .ToList();
+            return items.Where(i => i.Template.CanCarryToBattle).ToList();
         }
     }
-
+    
     /// <summary>
-    /// 合成管理器
+    /// 战斗背包 - 战斗中临时使用
     /// </summary>
-    public class CraftingManager
+    [Serializable]
+    public class CombatInventory : IInventory
     {
-        public event Action<CraftingResult> OnCraftComplete;
-        public event Action<CraftingResult> OnCraftFailed;
-
-        private readonly IInventory _inventory;
-        private readonly CraftingContext _context;
-
-        public CraftingManager(IInventory inventory)
+        [SerializeField] private int capacity = 10;
+        [SerializeField] private List<ItemInstance> items = new();
+        [SerializeField] private List<ItemInstance> loot = new();  // 战利品
+        
+        public int Capacity => capacity;
+        public int UsedSlots => items.Count;
+        public List<ItemInstance> Loot => loot;
+        
+        public event Action<ItemInstance> OnItemUsed;
+        public event Action<ItemInstance> OnLootAcquired;
+        
+        public bool AddItem(ItemInstance item)
         {
-            _inventory = inventory;
-            _context = new CraftingContext();
-        }
-
-        public void SetStation(CraftingStation station)
-        {
-            _context.CurrentStation = station;
-        }
-
-        public void UpdateContext(int playerLevel, Dictionary<string, int> skills)
-        {
-            _context.PlayerLevel = playerLevel;
-            _context.SkillLevels = skills;
-        }
-
-        /// <summary>
-        /// 尝试合成
-        /// </summary>
-        public CraftingResult TryCraft(Recipe recipe, int count = 1)
-        {
-            // 验证配方
-            if (!recipe.CanCraft(_inventory, _context))
+            if (item == null || UsedSlots >= capacity) return false;
+            
+            // 尝试堆叠
+            if (item.Template.IsStackable)
             {
-                var result = new CraftingResult
+                var existing = items.FirstOrDefault(i => i.CanStackWith(item));
+                if (existing != null)
                 {
-                    Success = false,
-                    Recipe = recipe,
-                    MissingIngredients = recipe.GetMissingIngredients(_inventory)
-                };
-                OnCraftFailed?.Invoke(result);
-                return result;
+                    existing.StackCount += item.StackCount;
+                    return true;
+                }
             }
-
-            // 消耗材料
-            foreach (var ingredient in recipe.Ingredients)
-            {
-                _inventory.RemoveItem(ingredient.ItemId, ingredient.Count * count);
-            }
-
-            // 生成产出物品
-            var outputItem = ItemDatabase.Instance.GetItem(recipe.OutputItemId);
-            var outputInstance = outputItem.CreateInstance(recipe.OutputCount * count);
-            _inventory.AddItem(outputInstance);
-
-            var successResult = new CraftingResult
-            {
-                Success = true,
-                Recipe = recipe,
-                CraftedItem = outputInstance,
-                CraftedCount = recipe.OutputCount * count
-            };
-
-            OnCraftComplete?.Invoke(successResult);
-            return successResult;
+            
+            items.Add(item);
+            return true;
         }
-
-        /// <summary>
-        /// 获取当前可合成的配方
-        /// </summary>
-        public List<Recipe> GetCraftableRecipes()
+        
+        public bool RemoveItem(int itemId, int count = 1)
         {
-            return RecipeDatabase.Instance.GetAvailableRecipes(_context.CurrentStation, _inventory)
-                .Where(r => r.CanCraft(_inventory, _context))
+            var item = items.FirstOrDefault(i => i.ItemId == itemId);
+            if (item == null) return false;
+            
+            if (item.StackCount <= count)
+            {
+                items.Remove(item);
+            }
+            else
+            {
+                item.StackCount -= count;
+            }
+            
+            OnItemUsed?.Invoke(item);
+            return true;
+        }
+        
+        public bool HasItem(int itemId, int count = 1) => GetItemCount(itemId) >= count;
+        
+        public int GetItemCount(int itemId)
+        {
+            return items.Where(i => i.ItemId == itemId).Sum(i => i.StackCount);
+        }
+        
+        public ItemInstance GetItem(int itemId)
+        {
+            return items.FirstOrDefault(i => i.ItemId == itemId);
+        }
+        
+        public List<ItemInstance> GetAllItems() => new(items);
+        
+        public void Clear()
+        {
+            items.Clear();
+            loot.Clear();
+        }
+        
+        /// <summary>
+        /// 添加战利品
+        /// </summary>
+        public void AddLoot(ItemInstance item)
+        {
+            if (item == null) return;
+            
+            // 尝试堆叠
+            if (item.Template.IsStackable)
+            {
+                var existing = loot.FirstOrDefault(i => i.CanStackWith(item));
+                if (existing != null)
+                {
+                    existing.StackCount += item.StackCount;
+                    OnLootAcquired?.Invoke(item);
+                    return;
+                }
+            }
+            
+            loot.Add(item);
+            OnLootAcquired?.Invoke(item);
+        }
+        
+        /// <summary>
+        /// 获取战斗中可使用的物品
+        /// </summary>
+        public List<ItemInstance> GetUsableItems()
+        {
+            return items.Where(i => i.Template.IsUsableInCombat).ToList();
+        }
+    }
+    
+    /// <summary>
+    /// 携带规则配置
+    /// </summary>
+    [CreateAssetMenu(fileName = "NewCarryRule", menuName = "ItemSystem/CarryRule")]
+    public class CarryRuleConfig : ScriptableObject
+    {
+        [Header("基础限制")]
+        public int maxTotalItems = 10;
+        public int maxConsumables = 5;
+        
+        [Header("类型限制")]
+        public ItemType[] allowedTypes = { ItemType.Consumable };
+        public ItemType[] forbiddenTypes = { ItemType.Material, ItemType.QuestItem };
+        
+        [Header("特殊规则")]
+        public bool allowEquipmentSwap = false;
+        public int maxHealingItems = 3;
+        public int maxBuffItems = 3;
+        
+        /// <summary>
+        /// 检查物品是否可携带
+        /// </summary>
+        public bool CanCarry(ItemInstance item)
+        {
+            if (item == null) return false;
+            
+            var template = item.Template;
+            
+            // 检查基础标记
+            if (!template.CanCarryToBattle) return false;
+            
+            // 检查禁止类型
+            if (forbiddenTypes.Contains(template.ItemType)) return false;
+            
+            // 检查允许类型
+            if (allowedTypes.Length > 0 && !allowedTypes.Contains(template.ItemType))
+                return false;
+            
+            return true;
+        }
+    }
+    
+    /// <summary>
+    /// 库存管理器 - 协调主库存和战斗背包
+    /// </summary>
+    public class InventoryManager
+    {
+        public MainInventory MainInventory { get; private set; }
+        public CombatInventory CombatInventory { get; private set; }
+        
+        private CarryRuleConfig _currentCarryRule;
+        
+        public event Action OnPrepareBattle;
+        public event Action OnBattleEnd;
+        
+        public InventoryManager()
+        {
+            MainInventory = new MainInventory();
+            CombatInventory = new CombatInventory();
+        }
+        
+        /// <summary>
+        /// 设置携带规则
+        /// </summary>
+        public void SetCarryRule(CarryRuleConfig rule)
+        {
+            _currentCarryRule = rule;
+        }
+        
+        /// <summary>
+        /// 准备进入战斗 - 选择携带物品
+        /// </summary>
+        public BattlePreparationResult PrepareBattle(List<int> selectedItemIds)
+        {
+            var result = new BattlePreparationResult();
+            CombatInventory.Clear();
+            
+            foreach (var itemId in selectedItemIds)
+            {
+                var item = MainInventory.GetItem(itemId);
+                if (item == null)
+                {
+                    result.FailedItems.Add(itemId);
+                    continue;
+                }
+                
+                // 验证携带规则
+                if (_currentCarryRule != null && !_currentCarryRule.CanCarry(item))
+                {
+                    result.FailedItems.Add(itemId);
+                    result.FailureReasons[itemId] = "不符合携带规则";
+                    continue;
+                }
+                
+                // 检查数量限制
+                if (!CheckQuantityLimits(item, result))
+                {
+                    result.FailedItems.Add(itemId);
+                    continue;
+                }
+                
+                // 创建副本放入战斗背包（保持主库存不变）
+                var combatCopy = item.Clone();
+                combatCopy.StackCount = 1;  // 每次只携带1个
+                
+                if (CombatInventory.AddItem(combatCopy))
+                {
+                    result.CarriedItems.Add(combatCopy);
+                }
+            }
+            
+            result.Success = result.FailedItems.Count == 0;
+            OnPrepareBattle?.Invoke();
+            return result;
+        }
+        
+        private bool CheckQuantityLimits(ItemInstance item, BattlePreparationResult result)
+        {
+            if (_currentCarryRule == null) return true;
+            
+            // 检查总数限制
+            if (CombatInventory.UsedSlots >= _currentCarryRule.maxTotalItems)
+            {
+                result.FailureReasons[item.ItemId] = "已达到携带上限";
+                return false;
+            }
+            
+            // 检查消耗品数量
+            if (item.Template.ItemType == ItemType.Consumable)
+            {
+                int currentConsumables = CombatInventory.GetAllItems()
+                    .Count(i => i.Template.ItemType == ItemType.Consumable);
+                if (currentConsumables >= _currentCarryRule.maxConsumables)
+                {
+                    result.FailureReasons[item.ItemId] = "消耗品已达上限";
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+        
+        /// <summary>
+        /// 战斗中使用物品
+        /// </summary>
+        public bool UseItemInCombat(int itemId, ICharacter user, ICharacter target = null)
+        {
+            var item = CombatInventory.GetItem(itemId);
+            if (item == null) return false;
+            
+            var template = item.Template;
+            if (template is not ICombatUsable usable) return false;
+            
+            // 使用物品
+            usable.Use(user, target);
+            
+            // 消耗物品
+            CombatInventory.RemoveItem(itemId, 1);
+            
+            // 同步消耗主库存
+            MainInventory.RemoveItem(itemId, 1);
+            
+            return true;
+        }
+        
+        /// <summary>
+        /// 战斗结束 - 合并战利品
+        /// </summary>
+        public BattleEndResult EndBattle(bool victory)
+        {
+            var result = new BattleEndResult { Victory = victory };
+            
+            if (victory)
+            {
+                // 将战利品转移到主库存
+                foreach (var lootItem in CombatInventory.Loot)
+                {
+                    if (MainInventory.AddItem(lootItem))
+                    {
+                        result.AcquiredLoot.Add(lootItem);
+                    }
+                    else
+                    {
+                        result.OverflowLoot.Add(lootItem);
+                    }
+                }
+            }
+            
+            // 清空战斗背包
+            CombatInventory.Clear();
+            
+            OnBattleEnd?.Invoke();
+            return result;
+        }
+        
+        /// <summary>
+        /// 获取可携带进入战斗的物品列表
+        /// </summary>
+        public List<ItemInstance> GetCarriableItems()
+        {
+            if (_currentCarryRule == null)
+                return MainInventory.GetBattleCarriableItems();
+            
+            return MainInventory.GetAllItems()
+                .Where(i => _currentCarryRule.CanCarry(i))
                 .ToList();
         }
     }
-
-    public struct CraftingResult
+    
+    public class BattlePreparationResult
     {
         public bool Success;
-        public Recipe Recipe;
-        public ItemInstance CraftedItem;
-        public int CraftedCount;
-        public List<RecipeIngredient> MissingIngredients;
-        public string ErrorMessage;
+        public List<ItemInstance> CarriedItems = new();
+        public List<int> FailedItems = new();
+        public Dictionary<int, string> FailureReasons = new();
+    }
+    
+    public class BattleEndResult
+    {
+        public bool Victory;
+        public List<ItemInstance> AcquiredLoot = new();
+        public List<ItemInstance> OverflowLoot = new();  // 库存满溢出的物品
     }
 }

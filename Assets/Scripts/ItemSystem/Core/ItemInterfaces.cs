@@ -1,6 +1,7 @@
+using ItemSystem.Crafting;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEditor.Progress;
+
 
 namespace ItemSystem.Core
 {
@@ -67,18 +68,6 @@ namespace ItemSystem.Core
     }
 
     /// <summary>
-    /// 有耐久度接口
-    /// </summary>
-    public interface IDurable
-    {
-        int CurrentDurability { get; set; }
-        int MaxDurability { get; }
-        void ReduceDurability(int amount);
-        void Repair(int amount);
-        bool IsBroken { get; }
-    }
-
-    /// <summary>
     /// 战斗中可使用接口
     /// </summary>
     public interface ICombatUsable : IUsable
@@ -102,14 +91,6 @@ namespace ItemSystem.Core
         All
     }
 
-    /// <summary>
-    /// 前缀类别 - 用于限制武器可用的修饰语
-    /// </summary>
-    public enum PrefixCategory
-    {
-        Melee,          // 近战
-        Ranged,         // 远程
-        Magic,          // 魔法
-        Universal       // 通用
-    }
+    // 注意：PrefixCategory 已移至 ItemSystem.Modifiers 命名空间
+    // 注意：IDurable 已移至 Database.cs
 }

@@ -1,0 +1,37 @@
+# 材料数据表
+# MaterialCategory: Ore/Wood/Herb/Gem/Fabric/Leather/Bone/Monster/Essence/Other
+ItemId,ItemName,Description,IconPath,Rarity,Flags,BuyPrice,SellPrice,MaxStackSize,MaterialCategory,Tier
+7001,铁矿石,普通的铁矿石,Icons/Materials/iron_ore,Common,Stackable|Sellable|Craftable,20,10,99,Ore,1
+7002,铜矿石,常见的铜矿石,Icons/Materials/copper_ore,Common,Stackable|Sellable|Craftable,15,7,99,Ore,1
+7003,银矿石,闪亮的银矿石,Icons/Materials/silver_ore,Uncommon,Stackable|Sellable|Craftable,50,25,99,Ore,2
+7004,金矿石,珍贵的金矿石,Icons/Materials/gold_ore,Rare,Stackable|Sellable|Craftable,150,75,99,Ore,3
+7005,秘银矿石,稀有的秘银矿石,Icons/Materials/mithril_ore,Rare,Stackable|Sellable|Craftable,300,150,99,Ore,4
+7006,精金矿石,传说中的精金矿石,Icons/Materials/adamantite_ore,Epic,Stackable|Sellable|Craftable,800,400,99,Ore,5
+7011,橡木,坚固的橡木,Icons/Materials/oak_wood,Common,Stackable|Sellable|Craftable,15,7,99,Wood,1
+7012,桦木,轻便的桦木,Icons/Materials/birch_wood,Common,Stackable|Sellable|Craftable,12,6,99,Wood,1
+7013,红木,珍贵的红木,Icons/Materials/mahogany_wood,Uncommon,Stackable|Sellable|Craftable,40,20,99,Wood,2
+7014,黑檀木,坚硬的黑檀木,Icons/Materials/ebony_wood,Rare,Stackable|Sellable|Craftable,100,50,99,Wood,3
+7015,世界树枝,世界树的枝条,Icons/Materials/world_tree_branch,Legendary,Stackable|Sellable|Craftable,2000,1000,30,Wood,5
+7021,治疗草,具有治疗效果的草药,Icons/Materials/heal_herb,Common,Stackable|Sellable|Craftable,30,15,99,Herb,1
+7022,蓝莓,恢复魔力的浆果,Icons/Materials/blueberry,Common,Stackable|Sellable|Craftable,25,12,99,Herb,1
+7023,月光花,在月光下绽放的花朵,Icons/Materials/moonlight_flower,Uncommon,Stackable|Sellable|Craftable,80,40,99,Herb,2
+7024,火焰草,散发热量的草药,Icons/Materials/fire_herb,Rare,Stackable|Sellable|Craftable,150,75,99,Herb,3
+7031,红宝石,闪耀的红宝石,Icons/Materials/ruby,Rare,Stackable|Sellable|Craftable,300,150,50,Gem,3
+7032,蓝宝石,深邃的蓝宝石,Icons/Materials/sapphire,Rare,Stackable|Sellable|Craftable,300,150,50,Gem,3
+7033,绿宝石,翠绿的绿宝石,Icons/Materials/emerald,Rare,Stackable|Sellable|Craftable,300,150,50,Gem,3
+7034,钻石,璀璨的钻石,Icons/Materials/diamond,Epic,Stackable|Sellable|Craftable,1000,500,30,Gem,4
+7041,麻布,普通的麻布,Icons/Materials/linen,Common,Stackable|Sellable|Craftable,10,5,99,Fabric,1
+7042,丝绸,柔软的丝绸,Icons/Materials/silk,Uncommon,Stackable|Sellable|Craftable,50,25,99,Fabric,2
+7043,魔法布料,附魔的布料,Icons/Materials/magic_cloth,Rare,Stackable|Sellable|Craftable,150,75,99,Fabric,3
+7051,狼皮,狼的皮毛,Icons/Materials/wolf_leather,Common,Stackable|Sellable|Craftable,25,12,99,Leather,1
+7052,熊皮,熊的皮毛,Icons/Materials/bear_leather,Uncommon,Stackable|Sellable|Craftable,60,30,99,Leather,2
+7053,龙鳞,龙的鳞片,Icons/Materials/dragon_scale,Legendary,Stackable|Sellable|Craftable,5000,2500,20,Leather,5
+7061,史莱姆凝胶,史莱姆掉落的凝胶,Icons/Materials/slime_gel,Common,Stackable|Sellable|Craftable,10,5,99,Monster,1
+7062,哥布林牙齿,哥布林的尖牙,Icons/Materials/goblin_tooth,Common,Stackable|Sellable|Craftable,15,7,99,Monster,1
+7063,骷髅骨,骷髅的骨头,Icons/Materials/skeleton_bone,Uncommon,Stackable|Sellable|Craftable,35,17,99,Monster,2
+7064,恶魔之心,恶魔的心脏,Icons/Materials/demon_heart,Epic,Stackable|Sellable|Craftable,800,400,20,Monster,4
+7071,火焰精华,蕴含火焰之力的精华,Icons/Materials/fire_essence,Rare,Stackable|Sellable|Craftable,200,100,50,Essence,3
+7072,冰霜精华,蕴含冰霜之力的精华,Icons/Materials/ice_essence,Rare,Stackable|Sellable|Craftable,200,100,50,Essence,3
+7073,雷电精华,蕴含雷电之力的精华,Icons/Materials/lightning_essence,Rare,Stackable|Sellable|Craftable,200,100,50,Essence,3
+7074,暗影精华,蕴含暗影之力的精华,Icons/Materials/dark_essence,Epic,Stackable|Sellable|Craftable,500,250,30,Essence,4
+7075,神圣精华,蕴含神圣之力的精华,Icons/Materials/holy_essence,Epic,Stackable|Sellable|Craftable,500,250,30,Essence,4

@@ -49,6 +49,7 @@ namespace ItemSystem.Modifiers
         public int FlatDamageBonus => flatDamageBonus;
         public float PriceMultiplier => priceMultiplier;
         public int ReforgeWeight => reforgeWeight;
+        public PrefixSpecialEffect[] SpecialEffects => specialEffects;
 
         /// <summary>
         /// 获取前缀颜色（用于UI显示）
@@ -100,15 +101,6 @@ namespace ItemSystem.Modifiers
         }
     }
 
-    public enum PrefixTier
-    {
-        Negative,   // 负面前缀（重铸失败）
-        Neutral,    // 中性
-        Good,       // 良好
-        Great,      // 优秀
-        Best        // 最佳（传说等）
-    }
-
     /// <summary>
     /// 前缀特殊效果
     /// </summary>
@@ -131,9 +123,12 @@ namespace ItemSystem.Modifiers
         ChainAttack         // 连锁攻击
     }
 
+    // 注意: PrefixTier 和 PrefixCategory 已移至 ItemSystem.Core.ItemEnums.cs
+
     /// <summary>
     /// 前缀数据库 - 管理所有前缀
     /// </summary>
+    [CreateAssetMenu(fileName = "PrefixDatabase", menuName = "ItemSystem/Databases/PrefixDatabase")]
     public class PrefixDatabase : ScriptableObject
     {
         private static PrefixDatabase _instance;
@@ -142,19 +137,44 @@ namespace ItemSystem.Modifiers
             get
             {
                 if (_instance == null)
+                {
                     _instance = Resources.Load<PrefixDatabase>("Databases/PrefixDatabase");
+                    _instance?.Initialize();
+                }
                 return _instance;
             }
+        }
+
+        /// <summary>
+        /// 手动设置实例
+        /// </summary>
+        public static void SetInstance(PrefixDatabase database)
+        {
+            _instance = database;
+            _instance?.Initialize();
         }
 
         [SerializeField] private PrefixData[] allPrefixes;
 
         private Dictionary<int, PrefixData> _prefixLookup;
         private Dictionary<PrefixCategory, List<PrefixData>> _categoryLookup;
+        private bool _initialized;
 
         private void OnEnable()
         {
+            Initialize();
+        }
+
+        public void Initialize()
+        {
+            if (_initialized) return;
+
             BuildLookups();
+
+            // 注册前缀名称提供者到 PrefixRegistry
+            PrefixRegistry.RegisterPrefixNameProvider(GetPrefixName);
+
+            _initialized = true;
         }
 
         private void BuildLookups()
@@ -162,8 +182,12 @@ namespace ItemSystem.Modifiers
             _prefixLookup = new Dictionary<int, PrefixData>();
             _categoryLookup = new Dictionary<PrefixCategory, List<PrefixData>>();
 
+            if (allPrefixes == null) return;
+
             foreach (var prefix in allPrefixes)
             {
+                if (prefix == null) continue;
+
                 _prefixLookup[prefix.PrefixId] = prefix;
 
                 if (!_categoryLookup.ContainsKey(prefix.Category))
@@ -176,6 +200,15 @@ namespace ItemSystem.Modifiers
         {
             if (_prefixLookup == null) BuildLookups();
             return _prefixLookup.TryGetValue(prefixId, out var prefix) ? prefix : null;
+        }
+
+        /// <summary>
+        /// 获取前缀显示名称
+        /// </summary>
+        public string GetPrefixName(int prefixId)
+        {
+            var prefix = GetPrefix(prefixId);
+            return prefix?.DisplayName;
         }
 
         public int[] GetPrefixesByCategory(PrefixCategory category)
@@ -199,6 +232,11 @@ namespace ItemSystem.Modifiers
 
             return prefixes.ToArray();
         }
+
+        public List<PrefixData> GetAllPrefixes()
+        {
+            return allPrefixes != null ? new List<PrefixData>(allPrefixes) : new List<PrefixData>();
+        }
     }
 
     /// <summary>
@@ -219,6 +257,8 @@ namespace ItemSystem.Modifiers
         public int CalculateReforgeCost(ItemInstance item)
         {
             var template = item.Template;
+            if (template == null) return 0;
+
             int baseCost = template.BuyPrice;
 
             // 基于品质的倍率
@@ -238,9 +278,9 @@ namespace ItemSystem.Modifiers
         /// <summary>
         /// 执行重铸
         /// </summary>
-        public ReforgeResult Reforge(ItemInstance item)
+        public ReforgeResult Reforge(ItemInstance item, PrefixCategory category)
         {
-            if (item.Template is not IReforgeable reforgeable)
+            if (item?.Template == null || !item.Template.IsReforgeable)
             {
                 return new ReforgeResult
                 {
@@ -250,7 +290,7 @@ namespace ItemSystem.Modifiers
             }
 
             int oldPrefixId = item.PrefixId;
-            int[] allowedPrefixes = reforgeable.GetAllowedPrefixes();
+            int[] allowedPrefixes = PrefixDatabase.Instance?.GetPrefixesByCategory(category);
 
             if (allowedPrefixes == null || allowedPrefixes.Length == 0)
             {
@@ -274,22 +314,30 @@ namespace ItemSystem.Modifiers
 
             item.SetPrefix(newPrefixId);
 
+            var oldPrefix = PrefixDatabase.Instance?.GetPrefix(oldPrefixId);
+            var newPrefix = PrefixDatabase.Instance?.GetPrefix(newPrefixId);
+
             return new ReforgeResult
             {
                 Success = true,
                 OldPrefixId = oldPrefixId,
                 NewPrefixId = newPrefixId,
-                OldPrefix = PrefixDatabase.Instance.GetPrefix(oldPrefixId),
-                NewPrefix = PrefixDatabase.Instance.GetPrefix(newPrefixId)
+                OldPrefix = oldPrefix,
+                NewPrefix = newPrefix,
+                IsUpgrade = (newPrefix?.Tier ?? PrefixTier.Neutral) > (oldPrefix?.Tier ?? PrefixTier.Neutral),
+                IsDowngrade = (newPrefix?.Tier ?? PrefixTier.Neutral) < (oldPrefix?.Tier ?? PrefixTier.Neutral)
             };
         }
 
         private int SelectWeightedPrefix(int[] prefixIds)
         {
             var prefixes = prefixIds
-                .Select(id => PrefixDatabase.Instance.GetPrefix(id))
+                .Select(id => PrefixDatabase.Instance?.GetPrefix(id))
                 .Where(p => p != null)
                 .ToList();
+
+            if (prefixes.Count == 0)
+                return 0;
 
             int totalWeight = prefixes.Sum(p => p.ReforgeWeight);
             int roll = _random.Next(totalWeight);
@@ -314,8 +362,7 @@ namespace ItemSystem.Modifiers
         public int NewPrefixId;
         public PrefixData OldPrefix;
         public PrefixData NewPrefix;
-
-        public bool IsUpgrade => NewPrefix?.Tier > OldPrefix?.Tier;
-        public bool IsDowngrade => NewPrefix?.Tier < OldPrefix?.Tier;
+        public bool IsUpgrade;
+        public bool IsDowngrade;
     }
 }

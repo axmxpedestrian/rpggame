@@ -5,7 +5,8 @@ using UnityEngine;
 namespace ItemSystem.Equipment
 {
     using Core;
-
+    using Modifiers;
+    
     /// <summary>
     /// 装备基类
     /// </summary>
@@ -15,10 +16,10 @@ namespace ItemSystem.Equipment
         [SerializeField] protected EquipmentSubType equipSubType;
         [SerializeField] protected StatModifier[] baseStatModifiers;
         [SerializeField] protected int levelRequirement;
-
+        
         public EquipmentSubType EquipSubType => equipSubType;
         public int LevelRequirement => levelRequirement;
-
+        
         public virtual void OnEquip(Character character)
         {
             foreach (var mod in GetStatModifiers())
@@ -26,7 +27,7 @@ namespace ItemSystem.Equipment
                 character.Stats.AddModifier(mod);
             }
         }
-
+        
         public virtual void OnUnequip(Character character)
         {
             foreach (var mod in GetStatModifiers())
@@ -34,13 +35,13 @@ namespace ItemSystem.Equipment
                 character.Stats.RemoveModifier(mod);
             }
         }
-
+        
         public virtual StatModifier[] GetStatModifiers()
         {
             return baseStatModifiers ?? Array.Empty<StatModifier>();
         }
     }
-
+    
     /// <summary>
     /// 武器类
     /// </summary>
@@ -54,16 +55,16 @@ namespace ItemSystem.Equipment
         [SerializeField] private float criticalMultiplier = 1.5f;
         [SerializeField] private ElementType element = ElementType.None;
         [SerializeField] private DamageCategory damageCategory = DamageCategory.Physical;
-
+        
         [Header("攻击范围")]
         [SerializeField] private AttackRangeConfig attackRange;
-
+        
         [Header("耐久度")]
         [SerializeField] private int maxDurability = 100;
-
+        
         [Header("技能")]
         [SerializeField] private SkillData[] weaponSkills;
-
+        
         // 属性访问
         public WeaponCategory WeaponCategory => weaponCategory;
         public int BaseDamage => baseDamage;
@@ -73,25 +74,25 @@ namespace ItemSystem.Equipment
         public DamageCategory DamageCategory => damageCategory;
         public AttackRangeConfig AttackRange => attackRange;
         public SkillData[] WeaponSkills => weaponSkills;
-
+        
         // IDurable 实现
         public int MaxDurability => maxDurability;
         public int CurrentDurability { get; set; }
         public bool IsBroken => CurrentDurability <= 0;
-
+        
         public void ReduceDurability(int amount)
         {
             CurrentDurability = Mathf.Max(0, CurrentDurability - amount);
         }
-
+        
         public void Repair(int amount)
         {
             CurrentDurability = Mathf.Min(maxDurability, CurrentDurability + amount);
         }
-
+        
         // IReforgeable 实现
         public int CurrentPrefixId { get; set; }
-
+        
         public PrefixCategory PrefixCategory
         {
             get
@@ -105,28 +106,28 @@ namespace ItemSystem.Equipment
                 };
             }
         }
-
+        
         public void ApplyPrefix(int prefixId)
         {
             CurrentPrefixId = prefixId;
         }
-
+        
         public int[] GetAllowedPrefixes()
         {
             return PrefixDatabase.Instance.GetPrefixesByCategory(PrefixCategory);
         }
-
+        
         // ISocketable 实现
         public int SocketCount => GetSocketCount();
         public SocketGem[] InstalledGems { get; private set; }
-
+        
         public bool CanInsertGem(SocketGem gem, int slotIndex)
         {
             if (slotIndex < 0 || slotIndex >= SocketCount) return false;
             if (InstalledGems == null) InstalledGems = new SocketGem[SocketCount];
             return InstalledGems[slotIndex] == null && gem.CanInsertInto(this);
         }
-
+        
         public void InsertGem(SocketGem gem, int slotIndex)
         {
             if (CanInsertGem(gem, slotIndex))
@@ -134,34 +135,58 @@ namespace ItemSystem.Equipment
                 InstalledGems[slotIndex] = gem;
             }
         }
-
+        
         public SocketGem RemoveGem(int slotIndex)
         {
             if (InstalledGems == null || slotIndex < 0 || slotIndex >= SocketCount)
                 return null;
-
+            
             var gem = InstalledGems[slotIndex];
             InstalledGems[slotIndex] = null;
             return gem;
         }
-
+        
         /// <summary>
         /// 计算带前缀的最终伤害
         /// </summary>
         public int GetFinalDamage(ItemInstance instance)
         {
             int damage = baseDamage;
-
+            
             // 应用前缀加成
-            if (instance?.Prefix != null)
+            if (instance != null && instance.PrefixId > 0)
             {
-                damage = Mathf.RoundToInt(damage * (1f + instance.Prefix.DamageModifier));
+                var prefix = PrefixDatabase.Instance?.GetPrefix(instance.PrefixId);
+                if (prefix != null)
+                {
+                    damage = Mathf.RoundToInt(damage * (1f + prefix.DamageModifier));
+                    damage += prefix.FlatDamageBonus;
+                }
             }
-
+            
             return damage;
         }
+        
+        /// <summary>
+        /// 获取带前缀的暴击率
+        /// </summary>
+        public float GetFinalCriticalChance(ItemInstance instance)
+        {
+            float crit = criticalChance;
+            
+            if (instance != null && instance.PrefixId > 0)
+            {
+                var prefix = PrefixDatabase.Instance?.GetPrefix(instance.PrefixId);
+                if (prefix != null)
+                {
+                    crit += prefix.CriticalModifier;
+                }
+            }
+            
+            return crit;
+        }
     }
-
+    
     /// <summary>
     /// 攻击范围配置
     /// </summary>
@@ -172,7 +197,7 @@ namespace ItemSystem.Equipment
         public int[] targetablePositions;  // 可攻击的位置索引（0-4）
         public bool isPositionRelative;    // 是否基于攻击者位置
         public int relativeRange;          // 相对范围（如"相邻1格"）
-
+        
         /// <summary>
         /// 检查能否攻击目标位置
         /// </summary>
@@ -182,11 +207,11 @@ namespace ItemSystem.Equipment
             {
                 return Mathf.Abs(attackerPosition - targetPosition) <= relativeRange;
             }
-
+            
             return Array.Exists(targetablePositions, p => p == targetPosition);
         }
     }
-
+    
     public enum AttackRangeType
     {
         Melee,          // 近战 - 只能打前排
@@ -195,7 +220,7 @@ namespace ItemSystem.Equipment
         Adjacent,       // 相邻
         Self            // 自身
     }
-
+    
     /// <summary>
     /// 护甲类
     /// </summary>
@@ -207,39 +232,39 @@ namespace ItemSystem.Equipment
         [SerializeField] private int physicalDefense;
         [SerializeField] private int magicDefense;
         [SerializeField] private float[] resistances; // 各元素抗性
-
+        
         [Header("耐久度")]
         [SerializeField] private int maxDurability = 150;
-
+        
         public ArmorSlot ArmorSlot => armorSlot;
         public int PhysicalDefense => physicalDefense;
         public int MagicDefense => magicDefense;
-
+        
         // IDurable 实现
         public int MaxDurability => maxDurability;
         public int CurrentDurability { get; set; }
         public bool IsBroken => CurrentDurability <= 0;
-
+        
         public void ReduceDurability(int amount) => CurrentDurability = Mathf.Max(0, CurrentDurability - amount);
         public void Repair(int amount) => CurrentDurability = Mathf.Min(maxDurability, CurrentDurability + amount);
-
+        
         // ISocketable 实现
         public int SocketCount => GetSocketCount();
         public SocketGem[] InstalledGems { get; private set; }
-
+        
         public bool CanInsertGem(SocketGem gem, int slotIndex)
         {
             if (slotIndex < 0 || slotIndex >= SocketCount) return false;
             if (InstalledGems == null) InstalledGems = new SocketGem[SocketCount];
             return InstalledGems[slotIndex] == null;
         }
-
+        
         public void InsertGem(SocketGem gem, int slotIndex)
         {
             if (CanInsertGem(gem, slotIndex))
                 InstalledGems[slotIndex] = gem;
         }
-
+        
         public SocketGem RemoveGem(int slotIndex)
         {
             if (InstalledGems == null || slotIndex < 0 || slotIndex >= SocketCount)
@@ -248,7 +273,7 @@ namespace ItemSystem.Equipment
             InstalledGems[slotIndex] = null;
             return gem;
         }
-
+        
         public float GetResistance(ElementType element)
         {
             int index = (int)element;
@@ -257,7 +282,7 @@ namespace ItemSystem.Equipment
             return resistances[index];
         }
     }
-
+    
     /// <summary>
     /// 饰品类
     /// </summary>
@@ -267,14 +292,14 @@ namespace ItemSystem.Equipment
         [Header("饰品属性")]
         [SerializeField] private AccessoryEffect[] specialEffects;
         [SerializeField] private PassiveSkillData passiveSkill;
-
+        
         public AccessoryEffect[] SpecialEffects => specialEffects;
         public PassiveSkillData PassiveSkill => passiveSkill;
-
+        
         public override void OnEquip(Character character)
         {
             base.OnEquip(character);
-
+            
             // 应用特殊效果
             if (specialEffects != null)
             {
@@ -283,18 +308,18 @@ namespace ItemSystem.Equipment
                     effect.Apply(character);
                 }
             }
-
+            
             // 注册被动技能
             if (passiveSkill != null)
             {
                 character.PassiveManager.Register(passiveSkill);
             }
         }
-
+        
         public override void OnUnequip(Character character)
         {
             base.OnUnequip(character);
-
+            
             if (specialEffects != null)
             {
                 foreach (var effect in specialEffects)
@@ -302,14 +327,14 @@ namespace ItemSystem.Equipment
                     effect.Remove(character);
                 }
             }
-
+            
             if (passiveSkill != null)
             {
                 character.PassiveManager.Unregister(passiveSkill);
             }
         }
     }
-
+    
     /// <summary>
     /// 饰品特殊效果
     /// </summary>
@@ -319,7 +344,7 @@ namespace ItemSystem.Equipment
         public AccessoryEffectType effectType;
         public float value;
         public ElementType element;
-
+        
         public void Apply(Character character)
         {
             // 根据效果类型应用
@@ -334,16 +359,16 @@ namespace ItemSystem.Equipment
                 case AccessoryEffectType.CriticalChanceBonus:
                     character.CombatStats.AddCriticalChance(value);
                     break;
-                    // ... 其他效果
+                // ... 其他效果
             }
         }
-
+        
         public void Remove(Character character)
         {
             // 移除效果（逆向Apply）
         }
     }
-
+    
     public enum AccessoryEffectType
     {
         DamageBonus,

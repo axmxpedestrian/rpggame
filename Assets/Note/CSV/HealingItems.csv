@@ -1,0 +1,19 @@
+# 回复类消耗品数据表
+# HealingType: Health/SkillPoints/Stress/Fatigue/Revive/All
+# TargetType: Self/SingleAlly/AllAllies/SingleEnemy/AllEnemies/Position/All
+ItemId,ItemName,Description,IconPath,Rarity,Flags,BuyPrice,SellPrice,MaxStackSize,HealingType,HealAmount,HealPercent,HealOverTime,Duration,TickCount,StressReduction,FatigueReduction,RemoveDebuffs,DebuffsToRemove,ATBCost,TargetType,Cooldown
+4001,小型生命药水,恢复少量生命,Icons/Consumables/hp_potion_s,Common,Stackable|UsableInCombat|CanCarryToBattle|Sellable,50,25,20,Health,50,0,false,0,0,0,0,false,,50,SingleAlly,0
+4002,中型生命药水,恢复中量生命,Icons/Consumables/hp_potion_m,Uncommon,Stackable|UsableInCombat|CanCarryToBattle|Sellable,150,75,15,Health,150,0,false,0,0,0,0,false,,50,SingleAlly,0
+4003,大型生命药水,恢复大量生命,Icons/Consumables/hp_potion_l,Rare,Stackable|UsableInCombat|CanCarryToBattle|Sellable,400,200,10,Health,350,0,false,0,0,0,0,false,,50,SingleAlly,0
+4004,特级生命药水,恢复50%最大生命,Icons/Consumables/hp_potion_xl,Epic,Stackable|UsableInCombat|CanCarryToBattle|Sellable,800,400,5,Health,0,0.5,false,0,0,0,0,false,,60,SingleAlly,0
+4005,再生药剂,持续恢复生命,Icons/Consumables/regen_potion,Rare,Stackable|UsableInCombat|CanCarryToBattle|Sellable,300,150,10,Health,200,0,true,10,5,0,0,false,,60,SingleAlly,0
+4006,小型技能药水,恢复少量技能点,Icons/Consumables/sp_potion_s,Common,Stackable|UsableInCombat|CanCarryToBattle|Sellable,80,40,15,SkillPoints,3,0,false,0,0,0,0,false,,40,SingleAlly,0
+4007,中型技能药水,恢复中量技能点,Icons/Consumables/sp_potion_m,Uncommon,Stackable|UsableInCombat|CanCarryToBattle|Sellable,200,100,10,SkillPoints,6,0,false,0,0,0,0,false,,40,SingleAlly,0
+4008,解毒药,移除中毒效果,Icons/Consumables/antidote,Common,Stackable|UsableInCombat|CanCarryToBattle|Sellable,60,30,20,Health,0,0,false,0,0,0,0,true,Poisoned,30,SingleAlly,0
+4009,止血绷带,移除流血效果并回复少量生命,Icons/Consumables/bandage,Common,Stackable|UsableInCombat|CanCarryToBattle|Sellable,40,20,30,Health,30,0,false,0,0,0,0,true,Bleeding,30,SingleAlly,0
+4010,净化药水,移除所有负面效果,Icons/Consumables/purify_potion,Rare,Stackable|UsableInCombat|CanCarryToBattle|Sellable,500,250,5,Health,0,0,false,0,0,0,0,true,Poisoned|Bleeding|Burning|Frozen|Stunned|Vulnerable|Weakened,70,SingleAlly,0
+4011,镇定剂,减少压力值,Icons/Consumables/calm_potion,Uncommon,Stackable|UsableInCombat|CanCarryToBattle|Sellable,120,60,15,Stress,0,0,false,0,0,30,0,false,,40,SingleAlly,0
+4012,提神药,减少疲劳值,Icons/Consumables/refresh_potion,Uncommon,Stackable|UsableInCombat|CanCarryToBattle|Sellable,120,60,15,Fatigue,0,0,false,0,0,0,25,false,,40,SingleAlly,0
+4013,全效恢复药,恢复生命、技能点并减少压力疲劳,Icons/Consumables/full_restore,Epic,Stackable|UsableInCombat|CanCarryToBattle|Sellable,1000,500,5,All,200,0.3,false,0,0,20,20,false,,80,SingleAlly,0
+4014,复活卷轴,复活倒下的队友,Icons/Consumables/revive_scroll,Epic,Stackable|UsableInCombat|CanCarryToBattle|Sellable,1500,750,3,Revive,100,0.3,false,0,0,0,0,false,,100,SingleAlly,0
+4015,群体治疗卷轴,治疗所有队友,Icons/Consumables/group_heal_scroll,Rare,Stackable|UsableInCombat|CanCarryToBattle|Sellable,600,300,5,Health,100,0,false,0,0,0,0,false,,80,AllAllies,0

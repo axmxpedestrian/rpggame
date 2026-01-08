@@ -90,7 +90,6 @@ namespace ItemSystem.Core
 
         // 缓存引用（运行时，不序列化）
         [NonSerialized] private Item _template;
-        [NonSerialized] private PrefixData _prefixData;
 
         public int ItemId => itemId;
         public int PrefixId => prefixId;
@@ -104,25 +103,26 @@ namespace ItemSystem.Core
             get => currentDurability;
             set => currentDurability = Mathf.Max(0, value);
         }
+        public int[] SocketGemIds => socketGemIds;
 
         public Item Template
         {
             get
             {
-                if (_template == null)
+                if (_template == null && ItemDatabase.Instance != null)
                     _template = ItemDatabase.Instance.GetItem(itemId);
                 return _template;
             }
         }
 
-        public PrefixData Prefix
+        /// <summary>
+        /// 获取前缀显示名称（延迟查询，避免循环依赖）
+        /// </summary>
+        public string GetPrefixDisplayName()
         {
-            get
-            {
-                if (_prefixData == null && prefixId > 0)
-                    _prefixData = PrefixDatabase.Instance.GetPrefix(prefixId);
-                return _prefixData;
-            }
+            if (prefixId <= 0) return null;
+            // 通过 PrefixRegistry 获取
+            return PrefixRegistry.GetPrefixName(prefixId);
         }
 
         public ItemInstance(Item template, int stack = 1)
@@ -141,6 +141,7 @@ namespace ItemSystem.Core
             this.itemId = itemId;
             this.prefixId = prefixId;
             this.stackCount = stack;
+            this.socketGemIds = Array.Empty<int>();
         }
 
         /// <summary>
@@ -149,7 +150,6 @@ namespace ItemSystem.Core
         public void SetPrefix(int newPrefixId)
         {
             prefixId = newPrefixId;
-            _prefixData = null; // 清除缓存
         }
 
         /// <summary>
@@ -157,9 +157,10 @@ namespace ItemSystem.Core
         /// </summary>
         public string GetDisplayName()
         {
-            if (Prefix != null)
-                return $"{Prefix.DisplayName} {Template.ItemName}";
-            return Template.ItemName;
+            string prefixName = GetPrefixDisplayName();
+            if (!string.IsNullOrEmpty(prefixName))
+                return $"{prefixName} {Template?.ItemName ?? "Unknown"}";
+            return Template?.ItemName ?? "Unknown";
         }
 
         /// <summary>
@@ -168,7 +169,7 @@ namespace ItemSystem.Core
         public bool CanStackWith(ItemInstance other)
         {
             if (other == null) return false;
-            if (!Template.IsStackable) return false;
+            if (Template == null || !Template.IsStackable) return false;
 
             // 只有相同模板且无特殊属性的物品可堆叠
             return itemId == other.itemId &&
@@ -183,8 +184,42 @@ namespace ItemSystem.Core
         {
             var clone = new ItemInstance(itemId, prefixId, stackCount);
             clone.currentDurability = currentDurability;
-            clone.socketGemIds = (int[])socketGemIds?.Clone();
+            clone.socketGemIds = (int[])socketGemIds?.Clone() ?? Array.Empty<int>();
             return clone;
+        }
+
+        /// <summary>
+        /// 初始化模板缓存（从存档加载后调用）
+        /// </summary>
+        public void InitializeFromSave()
+        {
+            _template = null; // 清除缓存，下次访问时会重新加载
+            if (socketGemIds == null)
+                socketGemIds = Array.Empty<int>();
+        }
+    }
+
+    /// <summary>
+    /// 前缀注册表 - 提供简单的前缀名称查询，避免循环依赖
+    /// </summary>
+    public static class PrefixRegistry
+    {
+        private static Func<int, string> _getPrefixNameFunc;
+
+        /// <summary>
+        /// 注册前缀名称查询函数（由 PrefixDatabase 初始化时调用）
+        /// </summary>
+        public static void RegisterPrefixNameProvider(Func<int, string> func)
+        {
+            _getPrefixNameFunc = func;
+        }
+
+        /// <summary>
+        /// 获取前缀显示名称
+        /// </summary>
+        public static string GetPrefixName(int prefixId)
+        {
+            return _getPrefixNameFunc?.Invoke(prefixId);
         }
     }
 }
