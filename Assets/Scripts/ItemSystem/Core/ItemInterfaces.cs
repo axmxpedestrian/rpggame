@@ -1,7 +1,5 @@
-using ItemSystem.Crafting;
 using System.Collections.Generic;
 using UnityEngine;
-
 
 namespace ItemSystem.Core
 {
@@ -10,8 +8,8 @@ namespace ItemSystem.Core
     /// </summary>
     public interface IUsable
     {
-        bool CanUse(Character user, Character target = null);
-        void Use(Character user, Character target = null);
+        bool CanUse(ICharacter user, ICharacter target = null);
+        void Use(ICharacter user, ICharacter target = null);
         float Cooldown { get; }
     }
 
@@ -21,8 +19,8 @@ namespace ItemSystem.Core
     public interface IEquippable
     {
         EquipmentSubType EquipSubType { get; }
-        void OnEquip(Character character);
-        void OnUnequip(Character character);
+        void OnEquip(ICharacter character);
+        void OnUnequip(ICharacter character);
         StatModifier[] GetStatModifiers();
     }
 
@@ -90,7 +88,8 @@ namespace ItemSystem.Core
         Position,       // 基于位置（相邻等）
         All
     }
-
-    // 注意：PrefixCategory 已移至 ItemSystem.Modifiers 命名空间
+    
+    // 注意：PrefixCategory 已移至 ItemEnums.cs
     // 注意：IDurable 已移至 Database.cs
+    // 注意：ICharacter 定义在 ICharacter.cs
 }

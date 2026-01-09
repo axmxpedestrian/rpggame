@@ -69,6 +69,20 @@ namespace CombatSystem
         
         #endregion
         
+        #region 站位系统
+        
+        private FormationManager _formation = new();
+        public FormationManager Formation => _formation;
+        
+        #endregion
+        
+        #region 技能系统
+        
+        private SkillExecutor _skillExecutor;
+        public SkillExecutor SkillExecutor => _skillExecutor;
+        
+        #endregion
+        
         #region 库存集成
         
         private InventoryManager _inventoryManager;
@@ -109,6 +123,16 @@ namespace CombatSystem
             
             _turnCount = 0;
             _atbTimer = 0f;
+            
+            // 初始化站位系统
+            _formation = new FormationManager();
+            _formation.InitializeFormation(TeamSide.Player, _playerTeam);
+            _formation.InitializeFormation(TeamSide.Enemy, _enemyTeam);
+            
+            // 初始化技能执行器
+            _skillExecutor = new SkillExecutor(_formation);
+            _skillExecutor.OnSkillDamageDealt += (attacker, target, result) => 
+                OnDamageDealt?.Invoke(attacker, target, result);
             
             // 初始化所有角色
             foreach (var character in _allCombatants)
@@ -352,6 +376,12 @@ namespace CombatSystem
         {
             character.ResetATB();
             
+            // 技能点回复（每回合恢复）
+            SkillPointManager.OnTurnStart(character);
+            
+            // 技能冷却减少
+            character.SkillManager?.TickCooldowns();
+            
             OnCharacterTurnEnd?.Invoke(character);
             
             _activeCharacter = null;
@@ -415,8 +445,54 @@ namespace CombatSystem
         /// </summary>
         private void OnCharacterDowned(Character character)
         {
+            // 自动补位
+            TeamSide side = GetTeamSide(character);
+            _formation.OnCharacterDowned(character, side);
+            
             // 检查战斗是否结束
             CheckBattleEnd();
+        }
+        
+        /// <summary>
+        /// 获取角色所属阵营
+        /// </summary>
+        public TeamSide GetTeamSide(Character character)
+        {
+            return _playerTeam.Contains(character) ? TeamSide.Player : TeamSide.Enemy;
+        }
+        
+        #endregion
+        
+        #region 技能执行
+        
+        /// <summary>
+        /// 执行技能
+        /// </summary>
+        public void ExecuteSkill(Character caster, SkillDefinition skill, List<Character> targets)
+        {
+            if (_activeCharacter != caster || currentState != CombatState.ActionSelect)
+                return;
+            
+            SetState(CombatState.Executing);
+            
+            TeamSide casterSide = GetTeamSide(caster);
+            var result = _skillExecutor.Execute(caster, casterSide, skill, targets);
+            
+            if (result.Success)
+            {
+                // 技能点回合恢复会在EndTurn中处理
+            }
+            
+            EndTurn(caster);
+        }
+        
+        /// <summary>
+        /// 获取技能的有效目标
+        /// </summary>
+        public List<Character> GetValidTargetsForSkill(Character caster, SkillDefinition skill)
+        {
+            TeamSide casterSide = GetTeamSide(caster);
+            return skill.attackRange.GetValidTargets(_formation, caster, casterSide);
         }
         
         #endregion

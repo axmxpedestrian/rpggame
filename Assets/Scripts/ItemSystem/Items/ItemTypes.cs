@@ -27,8 +27,8 @@ namespace ItemSystem.Consumables
                    IsStackable;
         }
 
-        public abstract bool CanUse(Character user, Character target = null);
-        public abstract void Use(Character user, Character target = null);
+        public abstract bool CanUse(ICharacter user, ICharacter target = null);
+        public abstract void Use(ICharacter user, ICharacter target = null);
     }
 
     /// <summary>
@@ -59,7 +59,7 @@ namespace ItemSystem.Consumables
         public int ATBCost => atbCost;
         public TargetType TargetType => targetType;
 
-        public override bool CanUse(Character user, Character target = null)
+        public override bool CanUse(ICharacter user, ICharacter target = null)
         {
             if (target == null) target = user;
 
@@ -87,7 +87,7 @@ namespace ItemSystem.Consumables
                    context.CurrentCharacter.CurrentATB >= atbCost;
         }
 
-        public override void Use(Character user, Character target = null)
+        public override void Use(ICharacter user, ICharacter target = null)
         {
             if (target == null) target = user;
 
@@ -118,7 +118,7 @@ namespace ItemSystem.Consumables
             }
         }
 
-        private int CalculateHealAmount(Character target)
+        private int CalculateHealAmount(ICharacter target)
         {
             int amount = healAmount;
 
@@ -131,7 +131,7 @@ namespace ItemSystem.Consumables
             return amount;
         }
 
-        private void ApplyInstantHeal(Character target, int amount)
+        private void ApplyInstantHeal(ICharacter target, int amount)
         {
             switch (healingType)
             {
@@ -147,7 +147,7 @@ namespace ItemSystem.Consumables
             }
         }
 
-        private void ApplyHealOverTime(Character target, int totalAmount)
+        private void ApplyHealOverTime(ICharacter target, int totalAmount)
         {
             int amountPerTick = totalAmount / tickCount;
             float interval = duration / tickCount;
@@ -190,7 +190,7 @@ namespace ItemSystem.Consumables
         public int ATBCost => atbCost;
         public TargetType TargetType => targetType;
 
-        public override bool CanUse(Character user, Character target = null)
+        public override bool CanUse(ICharacter user, ICharacter target = null)
         {
             // 检查是否已有相同buff（可选：允许刷新）
             return true;
@@ -202,7 +202,7 @@ namespace ItemSystem.Consumables
                    context.CurrentCharacter.CurrentATB >= atbCost;
         }
 
-        public override void Use(Character user, Character target = null)
+        public override void Use(ICharacter user, ICharacter target = null)
         {
             if (target == null) target = user;
 
@@ -221,7 +221,7 @@ namespace ItemSystem.Consumables
         public float value;
         public bool isPercentage;
 
-        public void Apply(Character character)
+        public void Apply(ICharacter character)
         {
             float actualValue = isPercentage ?
                 character.GetBaseStat(buffType) * value : value;
@@ -229,7 +229,7 @@ namespace ItemSystem.Consumables
             character.CombatStats.AddTemporaryBonus(buffType, actualValue);
         }
 
-        public void Remove(Character character)
+        public void Remove(ICharacter character)
         {
             float actualValue = isPercentage ?
                 character.GetBaseStat(buffType) * value : value;
@@ -275,12 +275,12 @@ namespace ItemSystem.Tools
         public int UseCount => useCount;
         public float Cooldown => cooldown;
 
-        public bool CanUse(Character user, Character target = null)
+        public bool CanUse(ICharacter user, ICharacter target = null)
         {
             return effect?.CanActivate(user, this) ?? false;
         }
 
-        public void Use(Character user, Character target = null)
+        public void Use(ICharacter user, ICharacter target = null)
         {
             effect?.Activate(user, target, this);
         }
@@ -306,8 +306,8 @@ namespace ItemSystem.Tools
     [Serializable]
     public abstract class ToolEffect
     {
-        public abstract bool CanActivate(Character user, Tool tool);
-        public abstract void Activate(Character user, Character target, Tool tool);
+        public abstract bool CanActivate(ICharacter user, Tool tool);
+        public abstract void Activate(ICharacter user, ICharacter target, Tool tool);
     }
 }
 
@@ -374,7 +374,7 @@ namespace ItemSystem.Cosmetics
         public CosmeticSlot Slot => slot;
         public EquipmentSubType EquipSubType => EquipmentSubType.Accessory;
 
-        public void OnEquip(Character character)
+        public void OnEquip(ICharacter character)
         {
             // 更新视觉外观
             character.VisualManager.SetCosmetic(slot, this);
@@ -389,7 +389,7 @@ namespace ItemSystem.Cosmetics
             }
         }
 
-        public void OnUnequip(Character character)
+        public void OnUnequip(ICharacter character)
         {
             character.VisualManager.RemoveCosmetic(slot);
 

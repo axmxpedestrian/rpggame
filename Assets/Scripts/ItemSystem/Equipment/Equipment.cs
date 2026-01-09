@@ -20,19 +20,19 @@ namespace ItemSystem.Equipment
         public EquipmentSubType EquipSubType => equipSubType;
         public int LevelRequirement => levelRequirement;
         
-        public virtual void OnEquip(Character character)
+        public virtual void OnEquip(ICharacter character)
         {
             foreach (var mod in GetStatModifiers())
             {
-                character.Stats.AddModifier(mod);
+                character.Stats?.AddModifier(mod);
             }
         }
         
-        public virtual void OnUnequip(Character character)
+        public virtual void OnUnequip(ICharacter character)
         {
             foreach (var mod in GetStatModifiers())
             {
-                character.Stats.RemoveModifier(mod);
+                character.Stats?.RemoveModifier(mod);
             }
         }
         
@@ -296,7 +296,7 @@ namespace ItemSystem.Equipment
         public AccessoryEffect[] SpecialEffects => specialEffects;
         public PassiveSkillData PassiveSkill => passiveSkill;
         
-        public override void OnEquip(Character character)
+        public override void OnEquip(ICharacter character)
         {
             base.OnEquip(character);
             
@@ -312,11 +312,11 @@ namespace ItemSystem.Equipment
             // 注册被动技能
             if (passiveSkill != null)
             {
-                character.PassiveManager.Register(passiveSkill);
+                character.PassiveManager?.Register(passiveSkill);
             }
         }
         
-        public override void OnUnequip(Character character)
+        public override void OnUnequip(ICharacter character)
         {
             base.OnUnequip(character);
             
@@ -330,7 +330,7 @@ namespace ItemSystem.Equipment
             
             if (passiveSkill != null)
             {
-                character.PassiveManager.Unregister(passiveSkill);
+                character.PassiveManager?.Unregister(passiveSkill);
             }
         }
     }
@@ -345,25 +345,25 @@ namespace ItemSystem.Equipment
         public float value;
         public ElementType element;
         
-        public void Apply(Character character)
+        public void Apply(ICharacter character)
         {
             // 根据效果类型应用
             switch (effectType)
             {
                 case AccessoryEffectType.DamageBonus:
-                    character.CombatStats.AddDamageMultiplier(value);
+                    character.CombatStats?.AddDamageMultiplier(value);
                     break;
                 case AccessoryEffectType.ElementalDamageBonus:
-                    character.CombatStats.AddElementalDamageBonus(element, value);
+                    character.CombatStats?.AddElementalDamageBonus(element, value);
                     break;
                 case AccessoryEffectType.CriticalChanceBonus:
-                    character.CombatStats.AddCriticalChance(value);
+                    character.CombatStats?.AddCriticalChance(value);
                     break;
                 // ... 其他效果
             }
         }
         
-        public void Remove(Character character)
+        public void Remove(ICharacter character)
         {
             // 移除效果（逆向Apply）
         }

@@ -309,7 +309,7 @@ namespace ItemSystem
     [System.Serializable]
     public class BuffEffect
     {
-        public BuffType buffType;
+        public ItemSystem.Core.BuffType buffType;
         public float value;
         public bool isPercentage;
 
