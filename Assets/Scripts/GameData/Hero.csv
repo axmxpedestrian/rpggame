@@ -1,0 +1,4 @@
+﻿characterId,characterName,description,characterType,baseLevel,constitution,strength,perception,reaction,wisdom,luck,defaultSkillIds
+hero_001,勇者,冒险的主角,Player,1,12,14,9,11,8,10,skill_slash;skill_guard
+hero_002,骑士,覆灭古国的战士,Player,1,14,15,10,10,5,4,skill_slash;skill_guard
+hero_003,巫师,精灵族后裔,Player,1,9,7,10,9,13,8,skill_slash;skill_guard

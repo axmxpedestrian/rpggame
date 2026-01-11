@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace CombatSystem
@@ -635,12 +636,14 @@ namespace CombatSystem
         // IPassiveManager 和 IVisualManager 适配器
         private PassiveManagerAdapter _passiveAdapter;
         private VisualManagerAdapter _visualAdapter;
+        private StatusEffectManagerAdapter _statusEffectAdapter;
         
         public PassiveManager PassiveManager { get; } = new();
         public VisualManager VisualManager { get; } = new();
         
         IPassiveManager ICharacter.PassiveManager => _passiveAdapter ??= new PassiveManagerAdapter(PassiveManager);
         IVisualManager ICharacter.VisualManager => _visualAdapter ??= new VisualManagerAdapter(VisualManager);
+        IStatusEffectManager ICharacter.StatusEffectManager => _statusEffectAdapter ??= new StatusEffectManagerAdapter(this);
         
         // ICharacter.AddStatusEffect 实现
         void ICharacter.AddStatusEffect(IStatusEffect effect)
@@ -653,6 +656,27 @@ namespace CombatSystem
                 OnStatusEffectAdded?.Invoke(this, instance);
             }
             // 其他 IStatusEffect 实现可以通过包装器处理
+        }
+        
+        /// <summary>
+        /// 获取基础属性值（用于百分比Buff计算）
+        /// </summary>
+        float ICharacter.GetBaseStat(BuffType buffType)
+        {
+            return buffType switch
+            {
+                BuffType.Attack => Stats.PhysicalAttack,
+                BuffType.Defense => Stats.PhysicalDefense,
+                BuffType.MagicAttack => Stats.MagicAttack,
+                BuffType.MagicDefense => Stats.MagicDefense,
+                BuffType.Speed => Stats.Speed,
+                BuffType.CriticalChance => Stats.CriticalRate,
+                BuffType.CriticalDamage => Stats.CriticalDamage,
+                BuffType.Accuracy => Stats.Accuracy,
+                BuffType.Evasion => Stats.Evasion,
+                BuffType.AllStats => (Stats.PhysicalAttack + Stats.MagicAttack) / 2f,
+                _ => 0f
+            };
         }
         
         #endregion
@@ -675,6 +699,48 @@ namespace CombatSystem
         public void AddModifier(StatModifier modifier) => _stats.AddModifier(modifier);
         public void RemoveModifier(StatModifier modifier) => _stats.RemoveModifier(modifier);
         public void RemoveModifiersFromSource(object source) => _stats.RemoveModifiersFromSource(source);
+    }
+    
+    /// <summary>
+    /// 状态效果管理器适配器
+    /// </summary>
+    public class StatusEffectManagerAdapter : IStatusEffectManager
+    {
+        private readonly Character _character;
+        
+        public StatusEffectManagerAdapter(Character character)
+        {
+            _character = character;
+        }
+        
+        public void AddEffect(IStatusEffect effect)
+        {
+            ((ICharacter)_character).AddStatusEffect(effect);
+        }
+        
+        public void RemoveEffect(StatusEffectType effectType)
+        {
+            _character.RemoveStatusEffect(effectType);
+        }
+        
+        public bool HasEffect(StatusEffectType effectType)
+        {
+            return _character.HasStatusEffect(effectType);
+        }
+        
+        public void ClearAllEffects()
+        {
+            // 移除所有效果
+            foreach (var effect in _character.StatusEffects.ToList())
+            {
+                _character.RemoveStatusEffect(effect.EffectData.EffectType);
+            }
+        }
+        
+        public void Tick(float deltaTime)
+        {
+            _character.UpdateStatusEffects(deltaTime);
+        }
     }
     
     /// <summary>
@@ -834,12 +900,12 @@ namespace CombatSystem
             ));
         }
         
-        public void AddTemporaryBonus(BuffType type, float value)
+        public void AddTemporaryBonus(ItemSystem.Core.BuffType type, float value)
         {
             _character.CombatCache.AddTemporaryBuff(type, value);
         }
         
-        public void RemoveTemporaryBonus(BuffType type, float value)
+        public void RemoveTemporaryBonus(ItemSystem.Core.BuffType type, float value)
         {
             _character.CombatCache.RemoveTemporaryBuff(type, value);
         }

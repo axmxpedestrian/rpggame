@@ -1,0 +1,3 @@
+characterId,characterName,category,threatLevel,isBoss,aiBehavior,constitution,strength,baseExpReward,baseGoldReward,defaultSkillIds
+enemy_slime_001,史莱姆,Beast,1,false,Aggressive,8,6,10,5,skill_tackle
+boss_dragon_001,火焰巨龙,Dragon,10,true,Berserker,50,45,500,200,skill_fire_breath;skill_tail_swipe

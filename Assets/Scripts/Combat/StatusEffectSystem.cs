@@ -267,41 +267,6 @@ namespace CombatSystem
         public bool CanCast() => !EffectData.PreventsCasting;
     }
     
-    /// <summary>
-    /// Buff类型（用于消耗品）
-    /// </summary>
-    public enum BuffType
-    {
-        Attack,
-        Defense,
-        MagicAttack,
-        MagicDefense,
-        Speed,
-        CriticalChance,
-        CriticalDamage,
-        Accuracy,
-        Evasion,
-        AllStats
-    }
-    
-    /// <summary>
-    /// Buff效果数据
-    /// </summary>
-    [Serializable]
-    public class BuffEffect
-    {
-        public BuffType buffType;
-        public float value;
-        public bool isPercentage;
-        
-        public void Apply(Character target)
-        {
-            target.CombatCache.AddTemporaryBuff(buffType, isPercentage ? value : value / 100f);
-        }
-        
-        public void Remove(Character target)
-        {
-            target.CombatCache.RemoveTemporaryBuff(buffType, isPercentage ? value : value / 100f);
-        }
-    }
+    // 注意: BuffType 已移至 ItemSystem.Core.ItemEnums.cs
+    // 注意: BuffEffect 已移至 ItemSystem.Core.ItemEnums.cs
 }

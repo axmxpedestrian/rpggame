@@ -158,15 +158,7 @@ namespace ItemSystem.Consumables
         }
     }
 
-    public enum HealingType
-    {
-        Health,
-        SkillPoints,
-        Stress,
-        Fatigue,
-        Revive,
-        All
-    }
+    // 注意: HealingType 已移至 ItemSystem.Core.ItemEnums.cs
 
     /// <summary>
     /// 属性提升类消耗品
@@ -214,43 +206,9 @@ namespace ItemSystem.Consumables
         }
     }
 
-    [Serializable]
-    public class BuffEffect
-    {
-        public BuffType buffType;
-        public float value;
-        public bool isPercentage;
-
-        public void Apply(ICharacter character)
-        {
-            float actualValue = isPercentage ?
-                character.GetBaseStat(buffType) * value : value;
-
-            character.CombatStats.AddTemporaryBonus(buffType, actualValue);
-        }
-
-        public void Remove(ICharacter character)
-        {
-            float actualValue = isPercentage ?
-                character.GetBaseStat(buffType) * value : value;
-
-            character.CombatStats.RemoveTemporaryBonus(buffType, actualValue);
-        }
-    }
-
-    public enum BuffType
-    {
-        Attack,
-        Defense,
-        MagicAttack,
-        MagicDefense,
-        Speed,
-        CriticalChance,
-        CriticalDamage,
-        Accuracy,
-        Evasion,
-        AllStats
-    }
+    // 注意: BuffEffect 已移至 ItemSystem.Core.ItemEnums.cs
+    // 注意: BuffType 已移至 ItemSystem.Core.ItemEnums.cs
+    // 注意: HealOverTimeEffect 和 BuffStatusEffect 已定义在 ItemSystem.Core.Database.cs
 }
 
 namespace ItemSystem.Tools

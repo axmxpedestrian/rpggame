@@ -295,6 +295,14 @@ namespace ItemSystem.Inventory
         }
         
         /// <summary>
+        /// 获取战斗背包引用
+        /// </summary>
+        public CombatInventory GetCombatInventory()
+        {
+            return CombatInventory;
+        }
+        
+        /// <summary>
         /// 设置携带规则
         /// </summary>
         public void SetCarryRule(CarryRuleConfig rule)

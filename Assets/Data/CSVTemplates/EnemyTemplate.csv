@@ -1,0 +1,6 @@
+# 敌人数据模板
+# 字段说明见文档，多值字段使用分号分隔
+characterId,characterName,description,baseLevel,constitution,strength,perception,reaction,wisdom,luck,constitutionGrowth,strengthGrowth,perceptionGrowth,reactionGrowth,wisdomGrowth,luckGrowth,category,threatLevel,isBoss,aiBehavior,aggroRange,deaggroRange,baseExpReward,baseGoldReward,spawnLocations,minSpawnLevel,maxSpawnLevel,spawnWeight,defaultSkillIds,fireResistance,iceResistance,lightningResistance,poisonResistance,holyResistance,darkResistance
+enemy_slime_001,史莱姆,最基础的敌人,1,8,6,5,7,4,5,0.8,0.6,0.5,0.7,0.4,0.3,Beast,1,false,Aggressive,5,15,10,5,forest_01;plains_01,1,10,1.0,skill_tackle,0,-0.2,0,0.3,0,0
+enemy_goblin_001,哥布林,狡猾的小型敌人,3,10,12,8,11,6,8,1.0,1.2,0.8,1.1,0.6,0.5,Humanoid,2,false,Tactical,6,12,25,15,cave_01;forest_02,3,15,0.8,skill_stab;skill_throw,0.1,0,0,0,-0.1,0
+boss_dragon_001,火焰巨龙,森林深处的古老巨龙,20,50,45,30,25,35,20,2.0,1.8,1.5,1.2,1.6,1.0,Dragon,10,true,Berserker,15,30,500,200,dragon_lair,15,99,0.1,skill_fire_breath;skill_tail_swipe;skill_fly,0.5,-0.3,0.2,0.3,0,-0.2

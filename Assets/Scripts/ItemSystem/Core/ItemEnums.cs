@@ -40,6 +40,7 @@ namespace ItemSystem.Core
     /// </summary>
     public enum WeaponCategory
     {
+        None,
         Blunt,          // 钝器
         Sharp,          // 锐器
         Bow,            // 弓
@@ -134,5 +135,66 @@ namespace ItemSystem.Core
         Good,       // 良好
         Great,      // 优秀
         Best        // 最佳
+    }
+
+    /// <summary>
+    /// Buff类型 - 用于消耗品和状态效果
+    /// 统一定义在此处，避免命名空间冲突
+    /// </summary>
+    public enum BuffType
+    {
+        Attack,
+        Defense,
+        MagicAttack,
+        MagicDefense,
+        Speed,
+        CriticalChance,
+        CriticalDamage,
+        Accuracy,
+        Evasion,
+        AllStats
+    }
+
+    /// <summary>
+    /// Buff效果数据 - 用于消耗品和状态效果
+    /// 统一定义在此处，避免命名空间冲突
+    /// </summary>
+    [System.Serializable]
+    public class BuffEffect
+    {
+        public BuffType buffType;
+        public float value;
+        public bool isPercentage;
+
+        public void Apply(ICharacter target)
+        {
+            if (target?.CombatStats == null) return;
+            
+            float actualValue = isPercentage ? 
+                target.GetBaseStat(buffType) * value : value;
+            target.CombatStats.AddTemporaryBonus(buffType, actualValue);
+        }
+
+        public void Remove(ICharacter target)
+        {
+            if (target?.CombatStats == null) return;
+            
+            float actualValue = isPercentage ? 
+                target.GetBaseStat(buffType) * value : value;
+            target.CombatStats.RemoveTemporaryBonus(buffType, actualValue);
+        }
+    }
+
+    /// <summary>
+    /// 治疗类型
+    /// </summary>
+    public enum HealingType
+    {
+        Health,
+        SkillPoints,
+        Stress,
+        Fatigue,
+        Revive,
+        All
     }
 }

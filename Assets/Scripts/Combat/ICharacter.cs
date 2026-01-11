@@ -39,10 +39,16 @@ namespace ItemSystem.Core
         ICharacterStats Stats { get; }
         ICombatStats CombatStats { get; }
         
-        // 状态效果
+        // 状态效果管理器
+        IStatusEffectManager StatusEffectManager { get; }
+        
+        // 便捷方法（兼容旧代码）
         void AddStatusEffect(IStatusEffect effect);
         void RemoveStatusEffect(StatusEffectType effectType);
         bool HasStatusEffect(StatusEffectType effectType);
+        
+        // 获取基础属性值（用于百分比计算）
+        float GetBaseStat(BuffType buffType);
         
         // 被动技能
         IPassiveManager PassiveManager { get; }
@@ -74,10 +80,23 @@ namespace ItemSystem.Core
     }
     
     /// <summary>
+    /// 状态效果管理器接口
+    /// </summary>
+    public interface IStatusEffectManager
+    {
+        void AddEffect(IStatusEffect effect);
+        void RemoveEffect(StatusEffectType effectType);
+        bool HasEffect(StatusEffectType effectType);
+        void ClearAllEffects();
+        void Tick(float deltaTime);
+    }
+    
+    /// <summary>
     /// 状态效果接口
     /// </summary>
     public interface IStatusEffect
     {
+        StatusEffectType EffectType { get; }
         void OnApply(ICharacter target);
         void OnRemove(ICharacter target);
         void OnTick(ICharacter target, float deltaTime);
@@ -102,20 +121,5 @@ namespace ItemSystem.Core
         void RemoveCosmetic(Cosmetics.CosmeticSlot slot);
     }
     
-    /// <summary>
-    /// Buff类型
-    /// </summary>
-    public enum BuffType
-    {
-        Attack,
-        Defense,
-        MagicAttack,
-        MagicDefense,
-        Speed,
-        CriticalChance,
-        CriticalDamage,
-        Accuracy,
-        Evasion,
-        AllStats
-    }
+    // 注意: BuffType 已移至 ItemSystem.Core.ItemEnums.cs
 }

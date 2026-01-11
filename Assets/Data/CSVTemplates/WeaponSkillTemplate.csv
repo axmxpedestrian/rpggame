@@ -1,0 +1,8 @@
+# 武器技能数据模板
+# requiredWeaponCategory: Blunt/Sharp/Bow/Explosive/Gun/Magic
+skillId,skillName,description,skillType,spCost,atbCost,cooldown,basePower,powerScaling,damageType,element,targetType,maxTargets,requiredWeaponCategory,proficiencyRequired,proficiencyGainOnUse,consumesDurability,durabilityConsumption,isComboStarter,isComboFinisher,hitCount
+wskill_sword_slash,剑斩,基础剑技,Active,1,100,0,110,1.0,Physical,None,SingleEnemy,1,Sharp,0,2,true,1,true,false,1
+wskill_sword_thrust,突刺,高穿透攻击,Active,1,100,0,130,1.1,Physical,None,SingleEnemy,1,Sharp,10,3,true,1,false,false,1
+wskill_sword_combo,连击终结,连击最后一击,Active,2,120,1,200,1.3,Physical,None,SingleEnemy,1,Sharp,25,5,true,2,false,true,1
+wskill_bow_shot,瞄准射击,精准远程攻击,Active,1,120,0,100,1.0,Physical,None,SingleEnemy,1,Bow,0,2,true,1,false,false,1
+wskill_bow_rain,箭雨,范围攻击,Active,3,180,3,80,0.8,Physical,None,AllEnemies,5,Bow,30,8,true,3,false,false,5

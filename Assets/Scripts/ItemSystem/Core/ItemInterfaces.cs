@@ -36,10 +36,21 @@ namespace ItemSystem.Core
 
     /// <summary>
     /// 可合成接口
+    /// 注意：Recipe 类定义在 ItemSystem.Crafting 命名空间
+    /// 使用 RecipeId 避免跨命名空间引用问题
     /// </summary>
     public interface ICraftable
     {
-        Recipe GetRecipe();
+        /// <summary>
+        /// 获取合成此物品所需的配方ID
+        /// 配方详情通过 RecipeDatabase.Instance.GetRecipe(id) 获取
+        /// </summary>
+        int GetRecipeId();
+        
+        /// <summary>
+        /// 获取所有可合成此物品的配方ID列表（可选实现）
+        /// </summary>
+        int[] GetAllRecipeIds() => new[] { GetRecipeId() };
     }
 
     /// <summary>

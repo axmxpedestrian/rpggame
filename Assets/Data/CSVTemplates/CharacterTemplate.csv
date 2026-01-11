@@ -1,0 +1,5 @@
+# 角色数据模板 - 可玩角色与同伴
+# 字段说明见文档，多值字段使用分号分隔
+characterId,characterName,description,characterType,baseLevel,constitution,strength,perception,reaction,wisdom,luck,constitutionGrowth,strengthGrowth,perceptionGrowth,reactionGrowth,wisdomGrowth,luckGrowth,baseATBSpeed,basePhysicalSP,baseMagicSP,fireResistance,iceResistance,lightningResistance,poisonResistance,holyResistance,darkResistance,defaultWeaponIds,defaultArmorIds,defaultSkillIds,spriteAtlasPath,portraitPath,animatorPath
+hero_001,勇者,冒险的主角,Player,1,12,14,10,11,8,10,1.2,1.5,1.0,1.1,0.8,0.5,100,6,4,0,0,0,0,0.1,0,weapon_sword_001,armor_light_001,skill_slash;skill_guard,Sprites/Characters/Hero,Sprites/Portraits/Hero,Animators/HeroAnimator
+companion_001,治疗师,擅长恢复魔法,Companion,1,10,8,12,9,15,11,1.0,0.8,1.2,0.9,1.5,0.6,90,3,8,0,0,0,0,0.2,-0.1,weapon_staff_001,armor_robe_001,skill_heal;skill_cure,Sprites/Characters/Healer,Sprites/Portraits/Healer,Animators/HealerAnimator

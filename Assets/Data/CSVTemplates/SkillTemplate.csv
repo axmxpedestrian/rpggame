@@ -1,0 +1,12 @@
+# 技能数据模板
+# category: WeaponSkill/MagicSkill/PhysicalSkill/SupportSkill/PassiveSkill/UltimateSkill
+# skillType: Active/Passive/Toggle/Reaction
+# damageType: Physical/Magic/True
+# element: None/Fire/Ice/Lightning/Poison/Holy/Dark
+# targetType: Self/SingleAlly/SingleEnemy/AllAllies/AllEnemies/Area
+# scalingAttribute: Strength/Wisdom/Perception/Constitution/Reaction/Luck/WeaponDamage/MaxHP/CurrentHP/MissingHP
+skillId,skillName,description,category,skillType,spCost,mpCost,hpCost,atbCost,cooldown,basePower,powerScaling,scalingAttribute,damageType,element,targetType,maxTargets,range,aoeRadius,accuracyModifier,critRateBonus,critDamageBonus,hitCount,hitInterval,requiredLevel,prerequisiteSkillIds,iconPath,animationClipPath,vfxPrefabPath,sfxPath
+skill_slash,斩击,基础剑技,PhysicalSkill,Active,1,0,0,100,0,120,1.0,Strength,Physical,None,SingleEnemy,1,1.5,0,1.0,0,0,1,0,1,,Icons/Skills/Slash,Animations/Skills/Slash,VFX/Skills/Slash,SFX/Skills/Slash
+skill_fireball,火球术,投掷火焰,MagicSkill,Active,0,15,0,100,0,150,1.2,Wisdom,Magic,Fire,SingleEnemy,1,5,0,0.95,0.05,0,1,0,5,,Icons/Skills/Fireball,Animations/Skills/Fireball,VFX/Skills/Fireball,SFX/Skills/Fireball
+skill_heal,治疗术,恢复生命,SupportSkill,Active,0,10,0,80,0,100,0.8,Wisdom,Magic,Holy,SingleAlly,1,3,0,1.0,0,0,1,0,1,,Icons/Skills/Heal,Animations/Skills/Heal,VFX/Skills/Heal,SFX/Skills/Heal
+skill_multi_strike,连斩,连续三次攻击,PhysicalSkill,Active,2,0,0,150,2,80,0.8,Strength,Physical,None,SingleEnemy,1,1.5,0,0.9,0.1,0.2,3,0.15,10,skill_slash,Icons/Skills/MultiStrike,Animations/Skills/MultiStrike,VFX/Skills/MultiStrike,SFX/Skills/MultiStrike

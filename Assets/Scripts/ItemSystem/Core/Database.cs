@@ -144,6 +144,7 @@ namespace ItemSystem.Core
         MagicDefense,
         Resistance,
         CriticalRate,
+        CriticalDamage,
         Speed,
         Accuracy,
         Evasion,
@@ -230,6 +231,11 @@ namespace ItemSystem.Core
     /// </summary>
     public abstract class StatusEffect : IStatusEffect
     {
+        /// <summary>
+        /// 效果类型 - 子类必须指定
+        /// </summary>
+        public abstract StatusEffectType EffectType { get; }
+        
         public virtual void OnApply(ICharacter target) { }
         public virtual void OnRemove(ICharacter target) { }
         public virtual void OnTick(ICharacter target, float deltaTime) { }
@@ -255,7 +261,13 @@ namespace ItemSystem.Core
         Haste,          // 加速
         Strength,       // 强化
         Protection,     // 防护
-        Focus           // 专注
+        Focus,          // 专注
+        
+        // 通用效果类型
+        Buff,           // 通用增益
+        Debuff,         // 通用减益
+        HealOverTime,   // 持续治疗
+        DamageOverTime  // 持续伤害
     }
 
     /// <summary>
@@ -281,48 +293,6 @@ namespace ItemSystem.Core
         public int PassiveId => passiveId;
         public string PassiveName => passiveName;
     }
-}
-
-namespace ItemSystem
-{
-    using Core;
-    using Consumables;
-
-    /// <summary>
-    /// 战斗上下文
-    /// </summary>
-    public class CombatContext
-    {
-        public ICharacter CurrentCharacter;
-        public System.Collections.Generic.List<ICharacter> Allies;
-        public System.Collections.Generic.List<ICharacter> Enemies;
-    }
-
-    // ============================================================
-    // 注意：Character 类定义在 CombatSystem 命名空间中
-    // 物品系统通过 ICharacter 接口与角色交互
-    // ============================================================
-
-    /// <summary>
-    /// Buff效果（与 ICharacter 配合使用）
-    /// </summary>
-    [System.Serializable]
-    public class BuffEffect
-    {
-        public ItemSystem.Core.BuffType buffType;
-        public float value;
-        public bool isPercentage;
-
-        public void Apply(ICharacter target)
-        {
-            target.CombatStats?.AddTemporaryBonus(buffType, isPercentage ? value : value / 100f);
-        }
-
-        public void Remove(ICharacter target)
-        {
-            target.CombatStats?.RemoveTemporaryBonus(buffType, isPercentage ? value : value / 100f);
-        }
-    }
 
     /// <summary>
     /// 持续回复效果
@@ -335,6 +305,8 @@ namespace ItemSystem
         private readonly int _totalTicks;
         private int _currentTick;
         private float _timer;
+
+        public override StatusEffectType EffectType => StatusEffectType.HealOverTime;
 
         public HealOverTimeEffect(HealingType healingType, int amountPerTick,
             float tickInterval, int totalTicks)
@@ -379,6 +351,8 @@ namespace ItemSystem
         private readonly bool _isPermanent;
         private float _remainingTime;
 
+        public override StatusEffectType EffectType => StatusEffectType.Buff;
+
         public BuffStatusEffect(BuffEffect buff, float duration, bool isPermanent)
         {
             _buff = buff;
@@ -406,5 +380,20 @@ namespace ItemSystem
         }
 
         public override bool IsExpired => !_isPermanent && _remainingTime <= 0;
+    }
+}
+
+namespace ItemSystem
+{
+    using Core;
+
+    /// <summary>
+    /// 战斗上下文
+    /// </summary>
+    public class CombatContext
+    {
+        public ICharacter CurrentCharacter;
+        public System.Collections.Generic.List<ICharacter> Allies;
+        public System.Collections.Generic.List<ICharacter> Enemies;
     }
 }
